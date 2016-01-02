@@ -7,9 +7,8 @@ routes = require('./routes/index');
 module.exports = function(app, io){
 
   io.on('connection', function (socket) {
-    init();
 
-    socket.emit('news', { hello: 'world' });
+    init(socket);
     socket.on('my other event', function (data) {
       console.log(data);
     });
@@ -17,9 +16,19 @@ module.exports = function(app, io){
 
   var program = getProgram('content');
 
-  function init(){
+  function init(socket){
     program = getProgram('content');
-    console.log(program);
+    socket.emit('newExpo', program[0]);
+
+    var i = 0;
+
+    setInterval(function(){
+
+      i++;
+
+      socket.emit('step', i);
+
+    }, program[0].conf.capt.interval * 1000)
   }
 
   // get programm from content folder and conf from yaml files
@@ -31,12 +40,14 @@ module.exports = function(app, io){
       defaultConf = YAML.load(path+'conf.yaml');
 
     _.forEach(expos, function(expo,i){
-
+      var steps = _.map(glob.sync(expo+'/*.jp*g'),function(d){
+          return d.replace(path,'');
+        });
       var e = {
         id:i,
         path:expo,
         conf:_.defaultsDeep(YAML.load(expo+'conf.yaml'),defaultConf),
-        steps:glob.sync(expo+'/*.jp*g')
+        steps: steps
       }
 
       program.push(e);

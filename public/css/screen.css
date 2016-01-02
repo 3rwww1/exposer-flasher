@@ -1,0 +1,17 @@
+body {
+  background-color: black;
+  background-size: contain;
+
+  margin: 0;
+  padding: 0;
+
+  overflow: hidden;
+}
+
+#projection img {
+  padding-bottom: 100%;
+}
+
+a {
+  color: #00B7FF;
+}
