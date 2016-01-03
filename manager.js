@@ -1,6 +1,8 @@
 YAML = require('yamljs');
 glob = require('glob');
 _ = require('lodash');
+exec = require('child_process').exec;
+
 
 module.exports = function(app, io){
 
@@ -33,6 +35,33 @@ module.exports = function(app, io){
 
     currentStep++;
     io.sockets.emit('step', currentStep);
+  }
+
+
+  function captureInit(){
+    var cmd = 'killall PTPCamera;gphoto2 --auto-detect;gphoto2 --summary;';
+
+    exec(cmd, function(error, stdout, stderr) {
+      console.log('ok', stdout)
+    });
+  }
+
+  function capture(p){
+
+    var param = _.defaults(p,{
+      hook:__dirname+'/script/hook.sh',
+      filename:__dirname+'/test.jpg'
+    });
+
+    var cmd = 'gphoto2 --capture-image-and-download \
+      --hook-script '+param.conf+' \
+      --force-overwrite --filename ' + param.filename;
+
+    exec(cmd, function(error, stdout, stderr) {
+      // command output is in stdout
+      console.log('ok', stdout, param)
+    });
+
   }
 
   // get programm from content folder and conf from yaml files
