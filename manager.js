@@ -4,48 +4,39 @@ _ = require('lodash');
 
 module.exports = function(app, io){
 
-  io.on('connection', function (socket) {
+  var program = getProgram('content');
+  var currentStep = 0;
 
+  //
+  // socket events
+  //
+  io.on('connection', onConnect);
+
+  //
+  // event handlers
+  //
+
+  function onConnect(socket){
     init(socket);
     socket.on('my other event', function (data) {
       console.log(data);
     });
-  });
+  }
 
-
-
-  app.get('/', function(req, res, next) {
-    res.render('index', { title: 'Express' });
-  });
-
-  app.get('/yio/',function(req, res){
-    res.send('Hello World!\n');
-  })
-
-  var program = getProgram('content');
-    var i = 0;
+  //
+  // actions
+  //
 
   function init(socket){
-    console.log(init);
-
     program = getProgram('content');
     socket.emit('newExpo', program[0]);
 
-      i++;
-
-    io.sockets.emit('step', i);
-    // setInterval(function(){
-
-    //   i++;
-
-    //   socket.emit('step', i);
-
-    // }, program[0].conf.capt.interval * 1000)
+    currentStep++;
+    io.sockets.emit('step', currentStep);
   }
 
   // get programm from content folder and conf from yaml files
   function getProgram(progID){
-
     var path = __dirname+'/'+progID+'/',
       program = [],
       expos = glob.sync(path+'*/'),
@@ -63,9 +54,7 @@ module.exports = function(app, io){
       }
 
       program.push(e);
-
     })
-
     return program;
   }
 }
