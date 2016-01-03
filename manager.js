@@ -2,8 +2,6 @@ YAML = require('yamljs');
 glob = require('glob');
 _ = require('lodash');
 
-routes = require('./routes/index');
-
 module.exports = function(app, io){
 
   io.on('connection', function (socket) {
@@ -14,21 +12,35 @@ module.exports = function(app, io){
     });
   });
 
+
+
+  app.get('/', function(req, res, next) {
+    res.render('index', { title: 'Express' });
+  });
+
+  app.get('/yio/',function(req, res){
+    res.send('Hello World!\n');
+  })
+
   var program = getProgram('content');
+    var i = 0;
 
   function init(socket){
+    console.log(init);
+
     program = getProgram('content');
     socket.emit('newExpo', program[0]);
 
-    var i = 0;
-
-    setInterval(function(){
-
       i++;
 
-      socket.emit('step', i);
+    io.sockets.emit('step', i);
+    // setInterval(function(){
 
-    }, program[0].conf.capt.interval * 1000)
+    //   i++;
+
+    //   socket.emit('step', i);
+
+    // }, program[0].conf.capt.interval * 1000)
   }
 
   // get programm from content folder and conf from yaml files

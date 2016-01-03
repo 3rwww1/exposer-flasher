@@ -6,6 +6,8 @@ body {
   padding: 0;
 
   overflow: hidden;
+  color: white;
+  text-align: center;
 }
 
 #projection img {
