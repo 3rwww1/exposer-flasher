@@ -1,13 +1,14 @@
 function init() {
 
   var socket = io.connect('http://localhost:3000');
-  var expo;
+  var expo, curStep = 0;
 
   //
   // socket events
   //
   socket.on('newExpo', onNewExpo)
-  socket.on('step', setStep)
+  socket.on('step', updtStep)
+  socket.on('captureEnd', onCaptureEnd)
   socket.on('test', function(data){
     console.log(data);
   })
@@ -19,7 +20,8 @@ function init() {
   //
   function onNewExpo(data){
     expo = data;
-    setStep(0);
+    curStep=0;
+    updtStep();
     console.log(expo);
   }
 
@@ -27,14 +29,37 @@ function init() {
     console.log(state);
   }
 
+
+  function onCaptureEnd(){
+    nextStep();
+  }
   //
   // actions
   //
-  function setStep(i){
-    console.log('step',i)
+
+  function nextStep(){
+
+    curStep++;
+    updtStep();
+
+  }
+
+  function updtStep(){
+    console.log('step',curStep)
+    var src =  expo.steps[curStep % expo.steps.length];
+
+    var hasFlash = new RegExp('\\bflash\\b');
+
+    if(hasFlash.test(src)) {
+      console.log('it is a flash !');
+      socket.emit('capture');
+    }else{
+      setTimeout(nextStep, 4000);
+    }
+
     var newImage = $('<img>', {
       width:'100%',
-      src:expo.steps[i % expo.steps.length],
+      src:expo.steps[curStep % expo.steps.length],
       class:'projection'
     })
 

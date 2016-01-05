@@ -14,6 +14,7 @@ module.exports = function(app, io){
   //
   io.on('connection', onConnect);
 
+
   //
   // event handlers
   //
@@ -23,43 +24,43 @@ module.exports = function(app, io){
     socket.on('my other event', function (data) {
       console.log(data);
     });
+    socket.on('capture', capture);
   }
 
   //
   // actions
   //
 
+  captureInit();
+
   function init(socket){
     program = getProgram('content');
     socket.emit('newExpo', program[0]);
-
-    currentStep++;
-    io.sockets.emit('step', currentStep);
   }
 
 
   function captureInit(){
-    var cmd = 'killall PTPCamera;gphoto2 --auto-detect;gphoto2 --summary;';
-
+    var cmd = 'killall PTPCamera;gphoto2 --auto-detect;gphoto2 --summary';
     exec(cmd, function(error, stdout, stderr) {
-      console.log('ok', stdout)
+      console.log('captureInit::', error);
     });
   }
 
-  function capture(p){
-
-    var param = _.defaults(p,{
-      hook:__dirname+'/script/hook.sh',
-      filename:__dirname+'/test.jpg'
-    });
+  function capture(){
+    console.log('📷  capture start !');
+    var param = {
+      hook:__dirname+'/scripts/hook.sh',
+      filename:__dirname+'/content/test.jpg'
+    };
 
     var cmd = 'gphoto2 --capture-image-and-download \
-      --hook-script '+param.conf+' \
+      --hook-script '+param.hook+' \
       --force-overwrite --filename ' + param.filename;
 
     exec(cmd, function(error, stdout, stderr) {
       // command output is in stdout
-      console.log('ok', stdout, param)
+      console.log('📷  capture end !',error)
+      io.sockets.emit('nextStep');
     });
 
   }

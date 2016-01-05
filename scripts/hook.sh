@@ -8,7 +8,7 @@ case "$ACTION" in
         echo "$self: START"
         ;;
     download)
-        curl http://localhost:3000/flash/false
+        curl http://localhost:3000/captureEnd/;
         echo "$self: DOWNLOAD to $ARGUMENT"
         ;;
     stop)

@@ -42,9 +42,9 @@ app.get('/projection/', function(req, res, next) {
   res.render('projection', { title: 'projection' });
 });
 
-app.get('/flash/:state/',function(req, res){
-  io.sockets.emit('flash', JSON.parse(req.params.state));
-  res.send('Hello World!\n');
+app.get('/captureEnd/',function(req, res){
+  io.sockets.emit('captureEnd');
+  res.send(' ');
 })
 
 //
