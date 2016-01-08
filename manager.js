@@ -41,9 +41,7 @@ module.exports = function(app, io){
 
   function captureInit(){
     var cmd = 'killall PTPCamera;gphoto2 --auto-detect;gphoto2 --summary';
-    exec(cmd, function(error, stdout, stderr) {
-      console.log('captureInit::', error);
-    });
+    exec(cmd, function(error, stdout, stderr) { console.log('captureInit::', error);});
   }
 
   function capture(){
@@ -57,12 +55,12 @@ module.exports = function(app, io){
       --hook-script '+param.hook+' \
       --force-overwrite --filename ' + param.filename;
 
-    exec(cmd, function(error, stdout, stderr) {
-      // command output is in stdout
-      console.log('📷  capture end !',error)
-      io.sockets.emit('nextStep');
-    });
+    exec(cmd,onCaptureEnded);
+  }
 
+  function onCaptureEnded(error, stdout, stderr) {
+    console.log('📷  capture end !',error)
+    io.sockets.emit('nextStep');
   }
 
   // get programm from content folder and conf from yaml files

@@ -1,0 +1,25 @@
+
+# EXPOSER/FLASHER
+
+# PROGRAMME ####################################################################
+
+prog:
+  start: 10         # horraire de début du programme
+  stop:  18         # horraire de fin du programme
+
+# EXPOSITION ###################################################################
+
+expo:
+  duration: 3       # temp en minutes
+  interval: 4       # interval entre deux images [0-9] secondes
+
+# CAPTURE ######################################################################
+
+capt:
+  backup: false     # garder une copie des captures ? [true|false]
+
+# ANIMATION ####################################################################
+
+anim:
+  updateInterval: 2 # mise à jour de l'animation toutes les 'n' captures
+  quality: 10       # qualité de compression
