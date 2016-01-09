@@ -16,5 +16,18 @@
     "morgan": "~1.6.1",
     "serve-favicon": "~2.3.0",
     "yamljs": "^0.2.4"
-  }
+  },
+  "description": "",
+  "main": "server.js",
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dcfvg/exposer-flasher.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dcfvg/exposer-flasher/issues"
+  },
+  "homepage": "https://github.com/dcfvg/exposer-flasher#readme"
 }
