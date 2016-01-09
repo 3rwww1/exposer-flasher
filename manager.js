@@ -7,7 +7,7 @@ exec = require('child_process').exec;
 module.exports = function(app, io){
 
   var program = getProgram('content');
-  var currentStep = 0;
+  var currentExpoId = 0;
 
   //
   // socket events
@@ -20,22 +20,36 @@ module.exports = function(app, io){
   //
 
   function onConnect(socket){
-    init(socket);
+    nextExpo();
     socket.on('my other event', function (data) {
       console.log(data);
     });
-    socket.on('capture', capture);
+    socket.on('capture', onCapture);
+    socket.on('expoEnd', onExpoEnd);
+  }
+
+  function onCaptureEnded(error, stdout, stderr) {
+    console.log('📷  capture end !',error)
+    io.sockets.emit('nextStep');
+  }
+
+  function onExpoEnd(){
+    nextExpo();
   }
 
   //
   // actions
   //
 
-  captureInit();
-
-  function init(socket){
+  function nextExpo(){
     program = getProgram('content');
-    socket.emit('newExpo', program[0]);
+    var currentExpo = program[currentExpoId % program.length ]
+
+    console.log('newExpo', currentExpo.path);
+    io.emit('newExpo', currentExpo);
+
+    currentExpoId++;
+    currentExpoId =  currentExpoId % program.length;
   }
 
 
@@ -44,7 +58,7 @@ module.exports = function(app, io){
     exec(cmd, function(error, stdout, stderr) { console.log('captureInit::', error);});
   }
 
-  function capture(){
+  function onCapture(){
     console.log('📷  capture start !');
     var param = {
       hook:__dirname+'/scripts/hook.sh',
@@ -58,10 +72,6 @@ module.exports = function(app, io){
     exec(cmd,onCaptureEnded);
   }
 
-  function onCaptureEnded(error, stdout, stderr) {
-    console.log('📷  capture end !',error)
-    io.sockets.emit('nextStep');
-  }
 
   // get programm from content folder and conf from yaml files
   function getProgram(progID){
@@ -72,13 +82,23 @@ module.exports = function(app, io){
       defaultConf = getConfigFile(__dirname);
 
     _.forEach(expos, function(expo,i){
+
+
+      // conf conversions
+      var conf = _.defaultsDeep(getConfigFile(expo),progDefaultConf,defaultConf)
+
+      conf.duration = conf.duration * 1000 * 60;
+      conf.interval = conf.interval * 1000;
+      conf.animUpdateInterval = conf.animUpdateInterval * 1000;
+
+
       var steps = _.map(glob.sync(expo+'/*.jp*g'),function(d){
           return d.replace(path,'');
         });
       var e = {
         id:i,
         path:expo,
-        conf:_.defaultsDeep(getConfigFile(expo),progDefaultConf,defaultConf),
+        conf: conf,
         steps: steps
       }
 

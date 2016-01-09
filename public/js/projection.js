@@ -1,7 +1,7 @@
 function init() {
 
   var socket = io.connect('http://localhost:3000');
-  var expo, curStep = 0;
+  var expo, curStep, startTime = new Date().getTime();;
 
   //
   // socket events
@@ -14,8 +14,11 @@ function init() {
   //
   function onNewExpo(data){
     expo = data;
-    curStep=0;
-    updtStep();
+    conf = expo.conf;
+
+    curStep=-1;
+    nextStep();
+
     console.log(expo);
   }
 
@@ -30,15 +33,25 @@ function init() {
 
   function updtStep(){
 
-    console.log('step',curStep);
+
+
+    console.log('step',curStep, conf.duration, getDuration());
+
+    if(getDuration() > conf.duration){
+      socket.emit('expoEnd');
+    }
 
     var src =  expo.steps[curStep % expo.steps.length];
     var hasFlash = new RegExp('\\bflash\\b');
 
     if(hasFlash.test(src)) socket.emit('capture');
-    else setTimeout(nextStep, expo.interval);
+    else setTimeout(nextStep, conf.interval);
 
-    // image injection
+    injectImg();
+
+  }
+
+  function injectImg(){
     var newImage = $('<img>', {
       width:'100%',
       src:expo.steps[curStep % expo.steps.length],
@@ -46,12 +59,16 @@ function init() {
     })
 
     $("#projection").prepend(newImage);
+
     if($("#projection img").length > 1){
-      setTimeout(function(){$("#projection img").last().remove();}, expo.conf.capt.interval * 500);
+      setTimeout(function(){$("#projection img").last().remove();}, conf.interval/2);
     }
   }
 
-
+  function getDuration(){
+    var now = new Date().getTime();
+    return (now-startTime);
+  }
   //
   // utils
   //
