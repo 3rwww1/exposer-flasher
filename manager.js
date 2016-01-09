@@ -68,7 +68,8 @@ module.exports = function(app, io){
     var path = __dirname+'/'+progID+'/',
       program = [],
       expos = glob.sync(path+'*/'),
-      defaultConf = YAML.load(path+'conf.yaml');
+      progDefaultConf = getConfigFile(path);
+      defaultConf = getConfigFile(__dirname);
 
     _.forEach(expos, function(expo,i){
       var steps = _.map(glob.sync(expo+'/*.jp*g'),function(d){
@@ -77,7 +78,7 @@ module.exports = function(app, io){
       var e = {
         id:i,
         path:expo,
-        conf:_.defaultsDeep(YAML.load(expo+'conf.yaml'),defaultConf),
+        conf:_.defaultsDeep(getConfigFile(expo),progDefaultConf,defaultConf),
         steps: steps
       }
 
@@ -85,4 +86,11 @@ module.exports = function(app, io){
     })
     return program;
   }
+
+  function getConfigFile(path){
+    var files = glob.sync(path+'/*.yaml');
+    if(files.length < 1) return {};
+    else return  YAML.load(files[0]);
+  }
+
 }
