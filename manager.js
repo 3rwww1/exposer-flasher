@@ -40,7 +40,6 @@ module.exports = function(app, io){
     mkdirp.sync(e.data.currentData);
   })
 
-
   tree.select('cameraReady').on('update', function(e) {
     console.log('📷\t camera'+(e.data.currentData?'':' not')+' ready');
   })
@@ -123,14 +122,14 @@ module.exports = function(app, io){
     console.log('📷\t initializing …');
 
     var cmd = 'killall PTPCamera; gphoto2 --auto-detect;gphoto2 --summary';
-    exec(cmd, function(error, stdout, stderr) {
-      if(error !== null) tree.set('cameraReady', false);
+    exec(cmd, function(err, stdout, stderr) {
+      if(err !== null) tree.set('cameraReady', false);
       else tree.set('cameraReady', true);
     });
   }
 
   function capture(){
-    console.log('📷\t capture start !');
+    console.log('📷\t capture !');
 
     var filename = tree.select('expo','capturePath').get() + '/' +
       _.padLeft(tree.select('expo','captureStack').get().length, 4,0) + '.jpg';
@@ -139,12 +138,17 @@ module.exports = function(app, io){
       --hook-script '+__dirname+'/scripts/hook.sh \
       --force-overwrite --filename ' + filename;
 
-    exec(cmd, function (error, stdout, stderr) {
-      console.log('📷\t capture end !', error, path.basename(filename));
-      gm(filename).resize(1920, 1080)
-      .write(filename, function (err) {
-        if (!err) tree.select('expo','captureStack').push(filename.replace(__dirname+'/content/',''));
-      });
+    exec(cmd, function (err, stdout, stderr) {
+      if (!err) console.log('📷\t new capture : ', path.basename(filename));
+      else console.log(err);
+
+      // image conversion
+      gm(filename)
+        .resize(1920, 1080)
+        .write(filename, function (err) {
+          if (!err) tree.select('expo','captureStack').push(filename.replace(__dirname+'/content/',''));
+          else console.log(err);
+        });
     });
   }
 

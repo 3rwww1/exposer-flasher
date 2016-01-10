@@ -4,6 +4,8 @@ bower_components/
 content/
 node_modules/
 
+tmpfile*
+
 # Windows image file caches
 Thumbs.db
 ehthumbs.db

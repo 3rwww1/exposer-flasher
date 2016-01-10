@@ -6,4 +6,4 @@
 duration: 3             # temp en minutes
 interval: 4             # interval entre deux images [0-9] secondes
 backup: false           # garder une copie des captures ? [true|false]
-animUpdateInterval: 2   # mise à jour de l'animation toutes les 'n' captures
+monitorFPS: 25          # vitesse de l'animation en images par secondes

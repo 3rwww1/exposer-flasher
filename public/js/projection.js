@@ -36,20 +36,19 @@ function init() {
 
   function updtStep(){
 
-
-
     console.log('step',curStep, conf.duration, getDuration());
 
-    if(getDuration() > conf.duration){
-      socket.emit('getNewExpo');
-    }
+    // ask for new exposition if time is over
+    if(getDuration() > conf.duration) socket.emit('getNewExpo');
 
-    var src =  expo.steps[curStep % expo.steps.length];
+    var src = expo.steps[curStep % expo.steps.length];
+
+    // check if current image needs capture
     var hasFlash = new RegExp('\\bflash\\b');
-
     if(hasFlash.test(src)) socket.emit('capture');
     else setTimeout(nextStep, conf.interval);
 
+    // inject current image
     injectImg();
 
   }
