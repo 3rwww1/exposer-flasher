@@ -8,12 +8,15 @@ function init() {
   //
   socket.on('newExpo', onNewExpo)
   socket.on('captureEnd', nextStep)
+  socket.emit('getNewExpo');
 
   //
   // events handlers
   //
   function onNewExpo(data){
     expo = data;
+    console.log(data);
+
     conf = expo.conf;
 
     curStep=-1;
@@ -38,7 +41,7 @@ function init() {
     console.log('step',curStep, conf.duration, getDuration());
 
     if(getDuration() > conf.duration){
-      socket.emit('expoEnd');
+      socket.emit('getNewExpo');
     }
 
     var src =  expo.steps[curStep % expo.steps.length];

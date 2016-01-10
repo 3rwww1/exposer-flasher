@@ -41,6 +41,9 @@ app.get('/', function(req, res, next) {
 app.get('/projection/', function(req, res, next) {
   res.render('projection', { title: 'projection' });
 });
+app.get('/monitor/', function(req, res, next) {
+  res.render('monitor', { title: 'monitor' });
+});
 
 app.get('/captureEnd/',function(req, res){
   io.sockets.emit('captureEnd');

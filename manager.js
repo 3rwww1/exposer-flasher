@@ -11,7 +11,8 @@ module.exports = function(app, io){
   var tree = new Baobab({
     program:getProgram('content'),
     expo:{ id:-1, data:{} },
-    cameraReady:''
+    cameraReady:'',
+    imageStack:[1,2]
   });
 
   var expoId = tree.select('expo', 'id');
@@ -44,16 +45,20 @@ module.exports = function(app, io){
   //
 
   function onConnect(socket){
-
     socket.on('capture', capture);
-    socket.on('expoEnd', function(){expoId.apply(inc)});
-
-    expoId.apply(inc);
+    socket.on('getNewExpo', function(){expoId.apply(inc)});
+    socket.on('getImageStack', onGetImageStack);
 
   }
 
   function onCaptureEnded(error, stdout, stderr) {
     console.log('📷\t capture end !', error);
+  }
+
+  function onGetImageStack(){
+
+    io.emit('imageStack', tree.get('imageStack'))
+
   }
 
   //
