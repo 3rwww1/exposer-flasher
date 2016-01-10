@@ -1,27 +1,37 @@
 function init() {
 
   var socket = io.connect('http://localhost:3000');
-  var expo, curStep, startTime = new Date().getTime();;
+  var expo, curCapture = -1, stack;
 
-  socket.on('imageStack', onImageStack);
+  socket.on('captureStack', onCaptureStack);
 
 
-  socket.emit('getImageStack');
+  socket.emit('getCaptureStack');
 
-  function onImageStack(data){
-    console.log('data', data);
+  function onCaptureStack(data){
+    stack = data;
+    console.log(stack);
   }
 
+  var interval = 40;
+
+  setInterval(function(){
+    curCapture ++ ;
+    injectImg();
+  },interval);
 
   function injectImg(){
     var newImage = $('<img>', {
       width:'100%',
-      src:expo.steps[curStep % expo.steps.length],
-      class:'projection'
+      src:stack[curCapture % stack.length],
+      class:'capture'
     })
-    $("#projection").prepend(newImage);
-  }
+    $("#monitor").prepend(newImage);
 
+    if($("#monitor img").length > 1){
+      setTimeout(function(){$("#monitor img").last().remove();}, interval/2);
+    }
+  }
 
 };
 
