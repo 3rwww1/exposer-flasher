@@ -2,6 +2,15 @@
 
 # exposer flasher 
 
+### install
+
+- `npm install` 
+- `bower install`
+
+### init
+- `npm start`
+- `npm run client`
+
 ### dependencies
 
 **app**
