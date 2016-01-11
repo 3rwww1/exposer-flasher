@@ -11,21 +11,25 @@ spawn = require('child_process').spawn;
 module.exports = function(app, io){
 
   // + get conf on load in monitor
-  // + auto detect camera and wait for it if not ready
-  // + correct feeback in console
-  // +
 
   // tree
   var tree = new Baobab({
-    program:getProgram('content'),
+    captureEnable:null,
+    captureReady:'',
+    program:{},
     expo:{
       id:-1,
       data:{},
-      capturePath:'',
+      capturePath:__dirname+'/content/',
       captureStack:[]
-    },
-    cameraReady:'',
+    }
   });
+
+  var program = tree.select('program');
+      program.on('update', function(e){
+        tree.select('captureEnable').set(programHasFlash(e.data.currentData));
+      })
+      program.set(getProgram('content'));
 
   var expoId = tree.select('expo', 'id');
       expoId.on('update', function(e) {
@@ -36,27 +40,30 @@ module.exports = function(app, io){
   var expo = tree.select('expo', 'data');
       expo.on('update', onExpoUpdate);
 
-  var captureStack = tree.select('expo', 'captureStack')
+  var captureStack = tree.select('expo', 'captureStack');
       captureStack.on('update', function(e){
         io.emit('captureStack', tree.select('expo','captureStack').get())
       })
+
+  tree.select('captureEnable').on('update', function(e){
+    console.log('📍\t program will '+(e.data.currentData?'':'not')+'need captures.');
+
+    if(e.data.currentData) captureInit();
+    else initClients();
+  })
 
   tree.select('expo', 'capturePath').on('update', function(e){
     mkdirp.sync(e.data.currentData);
   })
 
-  tree.select('cameraReady').on('update', function(e) {
-    console.log('📷\t camera'+(e.data.currentData?'':' not')+' ready');
+  tree.select('captureReady').on('update', function(e) {
+    console.log('📷\t camera'+(e.data.currentData?'':' NOT')+' ready');
   })
-
-  // look for camera on server lanch
-  // captureInit();
 
   //
   // socket events
   //
   io.on('connection', onConnect);
-
 
   //
   // event handlers
@@ -65,7 +72,7 @@ module.exports = function(app, io){
   function onExpoUpdate(e){
     var expo = e.data.currentData;
 
-    console.log('start', expo.path);
+    console.log('👀\t start', path.basename(expo.path), expoId);
 
     // create capture path
     var capturePath = expo.path+'/captures/';
@@ -83,13 +90,7 @@ module.exports = function(app, io){
     socket.on('getCaptureStack', onGetCaptureStack);
   }
 
-  function onGetCaptureStack(){
-    io.emit('captureStack', captureStack.get())
-  }
-
-  //
-  // actions
-  //
+  function onGetCaptureStack(){ io.emit('captureStack', captureStack.get())}
 
   // PROGRAM
 
@@ -128,8 +129,8 @@ module.exports = function(app, io){
 
     var cmd = 'killall PTPCamera; gphoto2 --auto-detect;gphoto2 --summary';
     exec(cmd, function(err, stdout, stderr) {
-      if(err !== null) tree.set('cameraReady', false);
-      else tree.set('cameraReady', true);
+      if(err !== null) console.log('💥\tcamera error ! \n\n',err,'\n\n');
+      tree.set('captureReady', (err === null));
     });
   }
 
@@ -145,26 +146,40 @@ module.exports = function(app, io){
 
     exec(cmd, function (err, stdout, stderr) {
       if (!err) console.log('📷\t new capture : ', path.basename(filename));
-      else console.log(err);
+      else console.log('💥',err);
 
       // image conversion
       gm(filename)
         .resize(1920, 1080)
         .write(filename, function (err) {
           if (!err) tree.select('expo','captureStack').push(filename.replace(__dirname+'/content/',''));
-          else console.log(err);
+          else console.log('💥',err);
         });
     });
   }
 
   // ANIMATION
+  function programHasFlash(program){
+    var hasFlash = new RegExp('\\bflash\\b');
 
+    var res = _(program)
+      .pluck('steps')
+      .flatten()
+      .filter(function(d){
+        return hasFlash.test(d);
+      }).value();
+
+    return (res.length > 0)
+  }
   function inc(nb){return nb + 1;}
 
   function getConfigFile(path){
     var files = glob.sync(path+'/*.yaml');
     if(files.length < 1) return {};
-    else return  YAML.load(files[0]);
+    else return YAML.load(files[0]);
+  }
+  function initClients(){
+    clientWindows = spawn('bash',[__dirname+'/scripts/clientsInit.sh']);
   }
 
 }

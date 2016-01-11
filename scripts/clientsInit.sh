@@ -2,6 +2,7 @@
 
 # killall -9 "Safari"
 killall -9 "Google Chrome"
+killall -9 "Chromium"
 
 sleep 3
 
@@ -19,6 +20,7 @@ osascript <<EOF
   end tell
 EOF
 
+sleep 3
 
 osascript <<EOF
   tell application "Chromium"
