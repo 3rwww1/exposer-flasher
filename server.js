@@ -58,7 +58,7 @@ require('./manager')(app, io);
 //
 
 function initClients(){
-  clientWindows = spawn('bash',[__dirname+'/scripts/initClients.sh']);
+  clientWindows = spawn('bash',[__dirname+'/scripts/clientsInit.sh']);
 };
 
 function onListening() {

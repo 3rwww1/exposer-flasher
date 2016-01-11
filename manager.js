@@ -140,7 +140,7 @@ module.exports = function(app, io){
       _.padLeft(tree.select('expo','captureStack').get().length, 4,0) + '.jpg';
 
     var cmd = 'gphoto2 --capture-image-and-download \
-      --hook-script '+__dirname+'/scripts/hook.sh \
+      --hook-script '+__dirname+'/scripts/captureHook.sh \
       --force-overwrite --filename ' + filename;
 
     exec(cmd, function (err, stdout, stderr) {
