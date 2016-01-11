@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node ./server.js",
-    "clients": "./scripts/initClients.sh"
+    "clients": "bash ./scripts/clientsInit.sh"
   },
   "dependencies": {
     "body-parser": "~1.13.2",
