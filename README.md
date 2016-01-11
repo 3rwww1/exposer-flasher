@@ -14,15 +14,14 @@
 ### dependencies
 
 **app**
-- Google Chrome 
-- Chromium
+- [Google Chrome](https://www.google.com/chrome)
+- [Chromium](https://download-chromium.appspot.com/?platform=Mac&type=continuous)
 
 **shell**
-- node
-- npm
-- bower
-- gphoto2
-- graphicsmagick
+- [nodejs](https://nodejs.org)
+- [npm](https://www.npmjs.com)
+- [gphoto2](http://gphoto.sourceforge.net) 
+- [graphicsmagick](http://www.graphicsmagick.org)
 
 ### programe structure
 ```
