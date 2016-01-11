@@ -51,7 +51,6 @@ module.exports = function(app, io){
   })
 
   // look for camera on server lanch
-  initClients();
   // captureInit();
 
   //
@@ -158,10 +157,6 @@ module.exports = function(app, io){
         });
     });
   }
-
-  function initClients(){
-    clientWindows = spawn('bash',[__dirname+'/scripts/initClients.sh']);
-  };
 
   // ANIMATION
 

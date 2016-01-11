@@ -58,10 +58,18 @@ require('./manager')(app, io);
 //
 // utils
 //
+
+function initClients(){
+  clientWindows = spawn('bash',[__dirname+'/scripts/initClients.sh']);
+};
+
 function onListening() {
+
   var addr = server.address();
   var bind = typeof addr === 'string'
     ? 'pipe ' + addr
     : 'port ' + addr.port;
   console.log('Listening on ' + bind);
+
+  initClients();
 }
