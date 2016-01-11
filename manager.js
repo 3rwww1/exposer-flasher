@@ -10,12 +10,11 @@ spawn = require('child_process').spawn;
 
 module.exports = function(app, io){
 
-
-  // + open browser in FS on each screens
   // + get conf on load in monitor
   // + auto detect camera and wait for it if not ready
   // + correct feeback in console
   // +
+
   // tree
   var tree = new Baobab({
     program:getProgram('content'),
