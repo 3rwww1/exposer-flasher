@@ -2,6 +2,20 @@
 
 # exposer flasher 
 
+### dependencies
+
+**app**
+- Google Chrome 
+- Chromium
+
+**shell**
+- node
+- npm
+- bower
+- gphoto2
+- graphicsmagick
+
+### programe structure
 ```
 program-1
     — 01-exposition
@@ -14,3 +28,4 @@ program-1
     - 02-exposition
     …
 ```
+
