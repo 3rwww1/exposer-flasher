@@ -7,6 +7,7 @@ mkdirp = require('mkdirp');
 path =  require('path');
 gm = require('gm');
 spawn = require('child_process').spawn;
+del = require('del');
 
 module.exports = function(app, io){
 
@@ -46,7 +47,7 @@ module.exports = function(app, io){
       })
 
   tree.select('captureEnable').on('update', function(e){
-    console.log('📍\t program will '+(e.data.currentData?'':'not')+'need captures.');
+    console.log('🔄\t program will '+(e.data.currentData?'':'not')+'need captures.');
 
     if(e.data.currentData) captureInit();
     else initClients();
@@ -72,11 +73,14 @@ module.exports = function(app, io){
   function onExpoUpdate(e){
     var expo = e.data.currentData;
 
-    console.log('👀\t start', path.basename(expo.path), expoId);
+    console.log('☀\t start', path.basename(expo.path), expoId);
 
     // create capture path
     var capturePath = expo.path+'/captures/';
     var prevCaptures = glob.sync(capturePath+'/*/');
+
+    if(noBackup) del(capturePath); // to connect
+
     capturePath += _.padLeft( prevCaptures.length + 1, 4, 0)+'/';
     tree.select('expo', 'capturePath').set(capturePath)
     captureStack.set([])
