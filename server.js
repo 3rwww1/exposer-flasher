@@ -5,48 +5,17 @@ var bodyParser = require('body-parser');
 var http = require('http');
 
 //
-// express settings
-//
-var app = express();
-
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
-
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.static(path.join(__dirname, 'content')));
-
-//
 // http server
 //
-var port = 3000;
-app.set('port', port);
 
+
+var port = 3000;
 var server = http.createServer(app);
 server.listen(port);
 server.on('listening', onListening);
 
 var io = require('socket.io')(server);
 
-//
-// routes
-//
-app.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
-});
-
-app.get('/projection/', function(req, res, next) {
-  res.render('projection', { title: 'projection' });
-});
-app.get('/monitor/', function(req, res, next) {
-  res.render('monitor', { title: 'monitor' });
-});
-
-app.get('/captureEnd/',function(req, res){
-  io.sockets.emit('captureEnd');
-  res.send(' ');
-})
 
 //
 // lanch manager

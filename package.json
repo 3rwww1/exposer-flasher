@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start": "node ./server.js",
+    "start": "kotatsu start -s start.js",
     "clients": "bash ./scripts/clientsInit.sh"
   },
   "dependencies": {

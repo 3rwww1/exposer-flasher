@@ -2,13 +2,16 @@ var YAML = require('yamljs');
 var glob = require('glob');
 var _ = require('lodash');
 var exec = require('child_process').exec;
+var Baobab = require('baobab');
 var mkdirp = require('mkdirp');
 var path =  require('path');
 var gm = require('gm');
 var spawn = require('child_process').spawn;
 var del = require('del');
 
-module.exports = function (sockets, tree) {
+module.exports = function(io){
+
+  // + get conf on load in monitor
 
   // tree
 
@@ -18,58 +21,74 @@ module.exports = function (sockets, tree) {
       })
       program.set(getProgram('content'));
 
+  var expoId = tree.select('expo', 'id');
+      expoId.on('update', function(e) {
+        var program = tree.get('program');
+        expo.set(program[expoId.get() % program.length]);
+      });
+
   var expo = tree.select('expo', 'data');
       expo.on('update', onExpoUpdate);
 
   var captureStack = tree.select('expo', 'captureStack');
       captureStack.on('update', function(e){
-        sockets.emit('captureStack', tree.select('expo','captureStack').get())
+        io.emit('captureStack', tree.select('expo','captureStack').get())
       })
 
+  tree.select('captureEnable').on('update', function(e){
+    console.log('🔄\t program will '+(e.data.currentData?'':'not')+'need captures.');
 
-  sockets.on('connection', onConnect);
+    if(e.data.currentData) captureInit();
+    else initClients();
+  })
+
+  tree.select('expo', 'capturePath').on('update', function(e){
+    mkdirp.sync(e.data.currentData);
+  })
+
+  tree.select('captureReady').on('update', function(e) {
+    console.log('📷\t camera'+(e.data.currentData?'':' NOT')+' ready');
+  })
+
+  //
+  // socket events
+  //
+  io.on('connection', onConnect);
+
+  //
+  // event handlers
+  //
 
   function onExpoUpdate(e){
     var expo = e.data.currentData;
 
-    console.log('☀\t start', path.basename(expo.path), expo.id);
+    console.log('☀\t start', path.basename(expo.path), expoId);
 
     // create capture path
     var capturePath = expo.path+'/captures/';
     var prevCaptures = glob.sync(capturePath+'/*/');
 
-    // if(noBackup) del(capturePath); // to connect
+    if(noBackup) del(capturePath); // to connect
 
     capturePath += _.padLeft( prevCaptures.length + 1, 4, 0)+'/';
     tree.select('expo', 'capturePath').set(capturePath)
     captureStack.set([])
 
-    sockets.emit('newExpo', expo);
+    io.emit('newExpo', expo);
   }
 
   function onConnect(socket){
-    console.log('connect');
-
-    socket.on('message', function (data) {
-      console.log(data,'message');
-          socket.emit('message', 'ok');
-    });
-
-
     socket.on('capture', capture);
-    socket.on('getNewExpo', function(){console.log('newExpo');
-        tree.select('expo','id').apply(inc);
-        // console.log(tree.get('expoId'))
-      });
+    socket.on('getNewExpo', function(){expoId.apply(inc)});
     socket.on('getCaptureStack', onGetCaptureStack);
   }
 
-  function onGetCaptureStack(){ sockets.emit('captureStack', captureStack.get())}
+  function onGetCaptureStack(){ io.emit('captureStack', captureStack.get())}
 
   // PROGRAM
 
   function getProgram(path){
-    var path = __dirname + '/' + path + '/',
+    var path = __dirname+'/'+path+'/',
       program = [],
       expos = glob.sync(path+'*/'),
       progDefaultConf = getConfigFile(path);
@@ -156,12 +175,4 @@ module.exports = function (sockets, tree) {
     clientWindows = spawn('bash',[__dirname+'/scripts/clientsInit.sh']);
   }
 
-  return function() {
-    sockets.off('connection', onConnect);
-
-    tree.off('update', onTreeUpdate);
-    for (var k in tree._cursors) {
-      tree._cursors[k].off('update');
-    }
-  };
 }

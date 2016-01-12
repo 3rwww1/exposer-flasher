@@ -7,10 +7,12 @@ html
     h1= title
     p Welcome to #{title}
 
-    script(src='/socket.io/socket.io.js')
+    script(src='http://localhost:3001/socket.io/socket.io.js')
     script.
-      var socket = io.connect('http://localhost:3000');
-      socket.on('news', function (data) {
-      console.log(data);
-      socket.emit('my other event', { my: 'data' });
+      var socket = io.connect('http://localhost:3001');
+      socket.emit('message', { my: 'data' });
+
+      socket.on('message', function (data) {
+        console.log(data);
+        socket.emit('my other event', { my: 'data' });
       });

@@ -1,6 +1,6 @@
 function init() {
 
-  var socket = io.connect('http://localhost:3000');
+  var socket = io.connect('http://localhost:3001');
   var expo, curStep, startTime = new Date().getTime();;
 
   //
