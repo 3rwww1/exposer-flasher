@@ -33,7 +33,7 @@ function init() {
     // ask for new exposition if time is over
     if(getDuration() > conf.duration){
       $("#projection").empty();
-      setTimeout(function(){socket.emit('getNewExpo')}; 3000);
+      setTimeout(function(){ socket.emit('getNewExpo') }, 3000);
     }else{
       curStep++;
       updtStep();
