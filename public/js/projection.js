@@ -1,7 +1,7 @@
 function init() {
 
   var socket = io.connect('http://localhost:3001');
-  var expo, curStep, conf, startTime;
+  var expo, curStep, conf, startTime = new Date().getTime();
 
   //
   // socket events
