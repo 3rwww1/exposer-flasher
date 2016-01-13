@@ -27,7 +27,6 @@ module.exports = function (sockets, tree) {
         sockets.emit('captureStack', tree.select('expo','captureStack').get())
       })
 
-
   tree.select('captureEnable').on('update', function(e){
     console.log('🔄\t program will '+(e.data.currentData?'':'not')+'need captures.');
 
@@ -35,16 +34,14 @@ module.exports = function (sockets, tree) {
     else initClients();
   })
 
-
   tree.select('captureReady').on('update', function(e) {
     console.log('📷\t camera'+(e.data.currentData?'':' NOT')+' ready');
     // tree.select('expo','id').set(0);
     initClients();
   })
 
-  tree.select('expo', 'capturePath').on('update', function(e){
-    mkdirp.sync(e.data.currentData);
-  })
+  var capturePath = tree.select('expo', 'capturePath')
+      capturePath.on('update', function(e){ mkdirp.sync(e.data.currentData);})
 
   sockets.on('connection', onConnect);
   killClients();
@@ -52,7 +49,6 @@ module.exports = function (sockets, tree) {
   function onExpoUpdate(e){
     var expo = e.data.currentData;
 
-    console.log('☀\t start',expo, expo.path, expo.id);
 
     // create capture path
     var capturePath = expo.path+'/captures/';
@@ -63,7 +59,9 @@ module.exports = function (sockets, tree) {
     tree.select('expo', 'capturePath').set(capturePath)
     captureStack.set([])
 
-    sockets.emit('newExpo', expo);
+    console.log('☀\t in 5 sec ',expo.path, expo.id);
+    setTimeout(function(){ sockets.emit('newExpo', expo); },5000);
+
   }
 
   function onConnect(socket){
