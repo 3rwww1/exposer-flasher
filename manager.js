@@ -40,8 +40,9 @@ module.exports = function (sockets, tree) {
     initClients();
   })
 
-  var capturePath = tree.select('expo', 'capturePath')
-      capturePath.on('update', function(e){ mkdirp.sync(e.data.currentData);})
+  tree.select('expo', 'capturePath').on('update', function(e){
+    mkdirp.sync(e.data.currentData);
+  })
 
   sockets.on('connection', onConnect);
   killClients();
@@ -49,6 +50,7 @@ module.exports = function (sockets, tree) {
   function onExpoUpdate(e){
     var expo = e.data.currentData;
 
+    console.log('☀\t start',expo, expo.path, expo.id);
 
     // create capture path
     var capturePath = expo.path+'/captures/';
@@ -59,9 +61,7 @@ module.exports = function (sockets, tree) {
     tree.select('expo', 'capturePath').set(capturePath)
     captureStack.set([])
 
-    console.log('☀\t in 5 sec ',expo.path, expo.id);
-    setTimeout(function(){ sockets.emit('newExpo', expo); },5000);
-
+    sockets.emit('newExpo', expo);
   }
 
   function onConnect(socket){
