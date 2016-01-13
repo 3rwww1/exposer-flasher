@@ -10,7 +10,7 @@ var del = require('del');
 
 module.exports = function (sockets, tree) {
 
-  // tree
+  // tree and cursors
 
   var program = tree.select('program');
       program.on('update', function(e){
@@ -36,7 +36,7 @@ module.exports = function (sockets, tree) {
 
   tree.select('captureReady').on('update', function(e) {
     console.log('📷\t camera'+(e.data.currentData?'':' NOT')+' ready');
-    // tree.select('expo','id').set(0);
+    tree.select('expo','id').set(0);
     initClients();
   })
 
@@ -44,13 +44,35 @@ module.exports = function (sockets, tree) {
     mkdirp.sync(e.data.currentData);
   })
 
-  sockets.on('connection', onConnect);
+  // init
   killClients();
 
+  // listen to sockets
+  sockets.on('connection', onConnect);
+
+  // on new client create socket events
+  function onConnect(socket){
+    console.log('connect');
+
+    socket.on('message', function (data) {
+      console.log(data,'message');
+      socket.emit('message', 'ok');
+    });
+
+    socket.on('capture', capture);
+    socket.on('getNewExpo', function(){
+      console.log('newExpo');
+      tree.select('expo','id').apply(incExpo);
+    });
+    socket.on('getCaptureStack', onGetCaptureStack);
+  }
+
+  // when onExpoUpdate ask : send new expo to client
   function onExpoUpdate(e){
     var expo = e.data.currentData;
 
-    console.log('☀\t start ','for '+expo.duration+' sec. every '+expo.interval+' sec.', expo.path, expo.id);
+    console.log('☀\t',expo.id,expo.path);
+    console.log('☀\t start ','for '+expo.conf.duration+' sec. every '+expo.conf.interval+' sec.');
 
     // create capture path
     var capturePath = expo.path+'/captures/';
@@ -64,26 +86,12 @@ module.exports = function (sockets, tree) {
     sockets.emit('newExpo', expo);
   }
 
-  function onConnect(socket){
-    console.log('connect');
-
-    socket.on('message', function (data) {
-      console.log(data,'message');
-      socket.emit('message', 'ok');
-    });
-
-    socket.on('capture', capture);
-    socket.on('getNewExpo', function(){
-      console.log('newExpo');
-      tree.select('expo','id').apply(nextExpo);
-    });
-    socket.on('getCaptureStack', onGetCaptureStack);
-  }
-
+  // send image stack when asked
   function onGetCaptureStack(){ sockets.emit('captureStack', captureStack.get())}
 
   // PROGRAM
 
+  // turn content folder into a program object
   function getProgram(path){
     var path = __dirname + '/' + path + '/',
       program = [],
@@ -114,12 +122,15 @@ module.exports = function (sockets, tree) {
 
   // CAPTURE
 
+  // kill all previously opened browsers
   function killClients(){
     var cmd = 'killall PTPCamera; killall -9 "Google Chrome"; killall -9 "Chromium";';
     exec(cmd, function(err, stdout, stderr) {
       if(err !== null) console.log('error while killing clients',err);
     });
   }
+
+  // lanch camera detection
   function captureInit(){
     console.log('📷\t initializing …');
 
@@ -129,7 +140,7 @@ module.exports = function (sockets, tree) {
       tree.set('captureReady', (err === null));
     });
   }
-
+  // capture image from camera
   function capture(){
     console.log('📷\t capture !');
 
@@ -156,7 +167,7 @@ module.exports = function (sockets, tree) {
     });
   }
 
-  // ANIMATION
+  // UTILS
   function programHasFlash(program){
     var hasFlash = new RegExp('\\bflash\\b');
 
@@ -169,7 +180,7 @@ module.exports = function (sockets, tree) {
 
     return (res.length > 0)
   }
-  function nextExpo(nb){return (nb + 1) % tree.select('program').get().length ;}
+  function incExpo(nb){return (nb + 1) % tree.select('program').get().length ;}
 
   function getConfigFile(path){
     var files = glob.sync(path+'/*.yaml');
@@ -182,8 +193,6 @@ module.exports = function (sockets, tree) {
 
   return function() {
     sockets.off('connection', onConnect);
-
-    tree.off('update', onTreeUpdate);
     for (var k in tree._cursors) {
       tree._cursors[k].off('update');
     }
