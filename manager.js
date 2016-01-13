@@ -50,7 +50,7 @@ module.exports = function (sockets, tree) {
   function onExpoUpdate(e){
     var expo = e.data.currentData;
 
-    console.log('☀\t start',expo, expo.path, expo.id);
+    console.log('☀\t start ','for '+expo.duration+' sec. every '+expo.interval+' sec.', expo.path, expo.id);
 
     // create capture path
     var capturePath = expo.path+'/captures/';
@@ -141,9 +141,11 @@ module.exports = function (sockets, tree) {
       --force-overwrite --filename ' + filename;
 
     exec(cmd, function (err, stdout, stderr) {
-      if (!err) console.log('📷\t new capture : ', path.basename(filename));
-      else console.log('💥',err);
-
+      if (!err) { console.log('📷\t new capture : ', path.basename(filename));
+      } else {
+        console.log('💥',err);
+        sockets.emit('captureEnd');
+      }
       // image conversion
       gm(filename)
         .resize(1920, 1080)
