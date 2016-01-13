@@ -55,7 +55,7 @@ module.exports = function (sockets, tree) {
     // if(noBackup) del(capturePath); // to connect
 
     capturePath += _.padLeft( prevCaptures.length + 1, 4, 0)+'/';
-    tree.select('expo', 'capturePath').set(capturePath).
+    tree.select('expo', 'capturePath').set(capturePath);
     captureStack.set([])
 
     sockets.emit('newExpo', expo);
