@@ -4,10 +4,10 @@
 killall -9 "Google Chrome"
 killall -9 "Chromium"
 
-sleep 3
+sleep 2
 
 osascript <<EOF
-  tell application "Google Chrome"
+  tell application "Chromium"
     open location "http://localhost:3000/projection"
     activate
 
@@ -17,13 +17,14 @@ osascript <<EOF
     set bounds of first window to {2500, 0, 3500, 1000}
 
     tell window 1 to enter presentation mode
+
   end tell
 EOF
 
-sleep 3
+sleep 1
 
 osascript <<EOF
-  tell application "Chromium"
+  tell application "Google Chrome"
     open location "http://localhost:3000/monitor"
     activate
 
@@ -33,5 +34,6 @@ osascript <<EOF
     set bounds of first window to {0, 0, 1000, 1000}
 
     tell window 1 to enter presentation mode
+
   end tell
 EOF

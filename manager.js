@@ -14,6 +14,7 @@ module.exports = function (sockets, tree) {
 
   var program = tree.select('program');
       program.on('update', function(e){
+        console.log(e.data.currentData)
         tree.select('captureEnable').set(programHasFlash(e.data.currentData));
       })
       program.set(getProgram('content'));
@@ -27,10 +28,23 @@ module.exports = function (sockets, tree) {
       })
 
 
+  tree.select('captureEnable').on('update', function(e){
+    console.log('🔄\t program will '+(e.data.currentData?'':'not')+'need captures.');
+
+    if(e.data.currentData) captureInit();
+    else initClients();
+  })
+
+
+  tree.select('captureReady').on('update', function(e) {
+    console.log('📷\t camera'+(e.data.currentData?'':' NOT')+' ready');
+    tree.select('expo','id').set(0);
+    initClients();
+  })
+
   sockets.on('connection', onConnect);
 
-  function onExpoUpdate(e){
-    var expo = e.data.currentData;
+  function onExpoUpdate(){
 
     console.log('☀\t start', path.basename(expo.path), expo.id);
 
@@ -41,7 +55,7 @@ module.exports = function (sockets, tree) {
     // if(noBackup) del(capturePath); // to connect
 
     capturePath += _.padLeft( prevCaptures.length + 1, 4, 0)+'/';
-    tree.select('expo', 'capturePath').set(capturePath)
+    tree.select('expo', 'capturePath').set(capturePath).
     captureStack.set([])
 
     sockets.emit('newExpo', expo);
@@ -58,9 +72,8 @@ module.exports = function (sockets, tree) {
 
     socket.on('capture', capture);
     socket.on('getNewExpo', function(){console.log('newExpo');
-        tree.select('expo','id').apply(inc);
-        // console.log(tree.get('expoId'))
-      });
+      tree.select('expo','id').apply(inc);
+    });
     socket.on('getCaptureStack', onGetCaptureStack);
   }
 
