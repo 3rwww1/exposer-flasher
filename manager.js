@@ -38,24 +38,29 @@ module.exports = function (sockets, tree) {
 
   tree.select('captureReady').on('update', function(e) {
     console.log('📷\t camera'+(e.data.currentData?'':' NOT')+' ready');
-    tree.select('expo','id').set(0);
+    // tree.select('expo','id').set(0);
     initClients();
   })
 
+  tree.select('expo', 'capturePath').on('update', function(e){
+    mkdirp.sync(e.data.currentData);
+  })
+
   sockets.on('connection', onConnect);
+  killClients();
 
-  function onExpoUpdate(){
+  function onExpoUpdate(e){
+    var expo = e.data.currentData;
 
-    console.log('☀\t start', path.basename(expo.path), expo.id);
+    console.log('☀\t start',expo, expo.path, expo.id);
 
     // create capture path
     var capturePath = expo.path+'/captures/';
+    if(!expo.conf.backup) del(capturePath+'/*/');
+
     var prevCaptures = glob.sync(capturePath+'/*/');
-
-    // if(noBackup) del(capturePath); // to connect
-
     capturePath += _.padLeft( prevCaptures.length + 1, 4, 0)+'/';
-    tree.select('expo', 'capturePath').set(capturePath);
+    tree.select('expo', 'capturePath').set(capturePath)
     captureStack.set([])
 
     sockets.emit('newExpo', expo);
@@ -66,13 +71,13 @@ module.exports = function (sockets, tree) {
 
     socket.on('message', function (data) {
       console.log(data,'message');
-          socket.emit('message', 'ok');
+      socket.emit('message', 'ok');
     });
 
-
     socket.on('capture', capture);
-    socket.on('getNewExpo', function(){console.log('newExpo');
-      tree.select('expo','id').apply(inc);
+    socket.on('getNewExpo', function(){
+      console.log('newExpo');
+      tree.select('expo','id').apply(nextExpo);
     });
     socket.on('getCaptureStack', onGetCaptureStack);
   }
@@ -111,6 +116,12 @@ module.exports = function (sockets, tree) {
 
   // CAPTURE
 
+  function killClients(){
+    var cmd = 'killall PTPCamera; killall -9 "Google Chrome"; killall -9 "Chromium";';
+    exec(cmd, function(err, stdout, stderr) {
+      if(err !== null) console.log('error while killing clients',err);
+    });
+  }
   function captureInit(){
     console.log('📷\t initializing …');
 
@@ -158,7 +169,7 @@ module.exports = function (sockets, tree) {
 
     return (res.length > 0)
   }
-  function inc(nb){return nb + 1;}
+  function nextExpo(nb){return (nb + 1) % tree.select('program').get().length ;}
 
   function getConfigFile(path){
     var files = glob.sync(path+'/*.yaml');

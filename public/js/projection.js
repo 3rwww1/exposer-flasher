@@ -1,7 +1,7 @@
 function init() {
 
   var socket = io.connect('http://localhost:3001');
-  var expo, curStep, startTime = new Date().getTime();;
+  var expo, curStep, conf, startTime;
 
   //
   // socket events
@@ -15,11 +15,11 @@ function init() {
   //
   function onNewExpo(data){
     expo = data;
-    console.log(data);
-
     conf = expo.conf;
 
     curStep=-1;
+    startTime = new Date().getTime();
+
     nextStep();
 
     console.log(expo);
@@ -39,17 +39,21 @@ function init() {
     console.log('step',curStep, conf.duration, getDuration());
 
     // ask for new exposition if time is over
-    if(getDuration() > conf.duration) socket.emit('getNewExpo');
+    if(getDuration() > conf.duration){
+      socket.emit('getNewExpo');
+    }else{
 
-    var src = expo.steps[curStep % expo.steps.length];
+      var src = expo.steps[curStep % expo.steps.length];
 
-    // check if current image needs capture
-    var hasFlash = new RegExp('\\bflash\\b');
-    if(hasFlash.test(src)) socket.emit('capture');
-    else setTimeout(nextStep, conf.interval);
+      // check if current image needs capture
+      var hasFlash = new RegExp('\\bflash\\b');
+      if(hasFlash.test(src)) socket.emit('capture');
+      else setTimeout(nextStep, conf.interval);
 
-    // inject current image
-    injectImg();
+      // inject current image
+      injectImg();
+
+    }
 
   }
 

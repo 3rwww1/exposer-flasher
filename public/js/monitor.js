@@ -10,6 +10,7 @@ function init() {
   // ask for stack on load
   socket.emit('getCaptureStack');
 
+  var loop = setInterval(onLoop,interval);
   //
   function onNewExpo(data){
     expo = data;
@@ -22,11 +23,11 @@ function init() {
   function onCaptureStack(newStack){
     stack = newStack;
     console.log(stack.length,'captures in stack');
+  }
 
-    setInterval(function(){
-      curCapture ++ ;
-      injectImg();
-    },interval);
+  function onLoop(){
+    curCapture ++ ;
+    injectImg();
   }
 
   function injectImg(){
