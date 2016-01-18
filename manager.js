@@ -62,7 +62,15 @@ module.exports = function (sockets, tree) {
     socket.on('capture', capture);
     socket.on('getNewExpo', function(){
       console.log('newExpo');
-      tree.select('expo','id').apply(incExpo);
+
+      // pump actions
+
+      //
+
+      setTimeout(function(){
+        tree.select('expo','id').apply(incExpo);
+      }, 1000);
+
     });
     socket.on('getCaptureStack', onGetCaptureStack);
   }
@@ -87,7 +95,9 @@ module.exports = function (sockets, tree) {
   }
 
   // send image stack when asked
-  function onGetCaptureStack(){ sockets.emit('captureStack', captureStack.get())}
+  function onGetCaptureStack(){
+    sockets.emit('captureStack', captureStack.get())
+  }
 
   // PROGRAM
 
@@ -125,9 +135,7 @@ module.exports = function (sockets, tree) {
   // kill all previously opened browsers
   function killClients(){
     var cmd = 'killall PTPCamera; killall -9 "Google Chrome"; killall -9 "Chromium";';
-    exec(cmd, function(err, stdout, stderr) {
-      if(err !== null) console.log('error while killing clients',err);
-    });
+    exec(cmd, function(err, stdout, stderr) { if(err !== null) console.log('error while killing clients',err);});
   }
 
   // lanch camera detection
@@ -154,8 +162,7 @@ module.exports = function (sockets, tree) {
     exec(cmd, function (err, stdout, stderr) {
       if (!err) { console.log('📷\t new capture : ', path.basename(filename));
       } else {
-        console.log('💥',err);
-        sockets.emit('captureEnd');
+        console.log('💥',err); sockets.emit('captureEnd');
       }
       // image conversion
       gm(filename)
@@ -174,12 +181,12 @@ module.exports = function (sockets, tree) {
     var res = _(program)
       .pluck('steps')
       .flatten()
-      .filter(function(d){
-        return hasFlash.test(d);
-      }).value();
+      .filter(function(d){ return hasFlash.test(d);})
+      .value();
 
     return (res.length > 0)
   }
+
   function incExpo(nb){return (nb + 1) % tree.select('program').get().length ;}
 
   function getConfigFile(path){

@@ -21,10 +21,10 @@ app.get('/', function(req, res, next) {
 });
 
 app.get('/projection/', function(req, res, next) {
-  res.render('projection', { title: 'projection' });
+  res.render('default', {id:'projection' });
 });
 app.get('/monitor/', function(req, res, next) {
-  res.render('monitor', { title: 'monitor' });
+  res.render('default', {id:'monitor'});
 });
 
 app.get('/captureEnd/',function(req, res){

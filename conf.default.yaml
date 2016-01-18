@@ -4,3 +4,4 @@ duration: 3             # temp en minutes
 interval: 4             # interval entre deux images en secondes
 backup: false           # garder une copie des captures ? [true|false]
 monitorFPS: 25          # vitesse de l'animation en images par secondes
+cleanDuration: 20       # temp de nettoyage entre deux expositions
