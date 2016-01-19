@@ -11,7 +11,9 @@ var serialPort = require("serialport");
 
 module.exports = function (sockets, tree) {
 
+  //
   // tree and cursors
+  //
   var program = tree.select('program');
       program.on('update', function(e){
         console.log(e.data.currentData)
@@ -46,38 +48,18 @@ module.exports = function (sockets, tree) {
 
   // init
   killClients();
-
   arduinoSendState(1,0,0);
-
-  setTimeout(function(){
-    console.log("ok");
-    arduinoSendState(0,0,0);
-  },10000)
+  setTimeout(function(){ arduinoSendState(0,0,0) },10000);
 
   // listen to sockets
   sockets.on('connection', onConnect);
 
   // on new client create socket events
   function onConnect(socket){
-    console.log('connect');
-
-    socket.on('message', function (data) {
-      console.log(data,'message');
-      socket.emit('message', 'ok');
-    });
 
     socket.on('capture', capture);
     socket.on('getNewExpo', function(){
-      console.log('newExpo');
-
-      // pump actions
-
-      //
-
-      setTimeout(function(){
-        tree.select('expo','id').apply(incExpo);
-      }, 1000);
-
+      setTimeout(function(){ tree.select('expo','id').apply(incExpo) }, 1000);
     });
     socket.on('getCaptureStack', onGetCaptureStack);
   }
@@ -96,16 +78,24 @@ module.exports = function (sockets, tree) {
     var prevCaptures = glob.sync(capturePath+'/*/');
     capturePath += _.padLeft( prevCaptures.length + 1, 4, 0)+'/';
     tree.select('expo', 'capturePath').set(capturePath);
-    captureStack.set([]);
 
-    arduinoSendState(1,0,0);
-    setTimeout(function(){
+    console.log('expoId:::',tree.get('expo','id'));
 
-      arduinoSendState(0,0,0);
+    if(tree.get('expo','id') === 1){
+
+      captureStack.set([]);
+      arduinoSendState(1,0,0);
+
+      setTimeout(function(){
+
+        arduinoSendState(0,0,0);
+        sockets.emit('newExpo', expo);
+
+      }, tree.get('expo','conf','cleanDuration') );
+
+    }else{
       sockets.emit('newExpo', expo);
-
-    },expo.conf.cleanDuration);
-
+    }
   }
 
   // send image stack when asked
@@ -179,7 +169,7 @@ module.exports = function (sockets, tree) {
       }
       // image conversion
       gm(filename)
-        .resize(expo.conf.screenWidth, expo.conf.screenHeight)
+        .resize(expo.get('conf','screenWidth'), expo.get('conf','screenHeight'))
         .write(filename, function (err) {
           if (!err) tree.select('expo','captureStack').push(filename.replace(__dirname+'/content/',''));
           else console.log('💥',err);
@@ -200,24 +190,18 @@ module.exports = function (sockets, tree) {
 
       if(!_.isUndefined(port)) {
         console.log(port.manufacturer, port.comName);
-
-
         var arduino = new serialPort.SerialPort( port.comName, {baudrate: 9600});
-
         arduino.on("open", function(err) {
           arduino.on('data', function(datain) {
             console.log("ARD:   " + datain.toString());
-            // dataToPumps(p0,p1,p2)
           });
-
-          setTimeout(function(){ dataToPumps(p0,p1,p2) }, 2000)
+          setTimeout(function(){ dataToPumps(p0,p1,p2) }, 2000);
         });
 
       }
 
       function dataToPumps(p0,p1,p2){
         pumpByte = p0 | p1<<1 | p2<<2;
-
         arduino.write([pumpByte], function(err, results) {
           if(err)console.log(err);
           console.log('results ' + results);
@@ -230,7 +214,6 @@ module.exports = function (sockets, tree) {
       }
     });
   }
-
 
   // UTILS
   function programHasFlash(program){
