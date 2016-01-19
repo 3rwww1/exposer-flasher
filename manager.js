@@ -130,6 +130,7 @@ module.exports = function (sockets, tree) {
       conf.duration = conf.duration * 1000 * 60;
       conf.interval = conf.interval * 1000;
       conf.animUpdateInterval = conf.animUpdateInterval * 1000;
+      conf.cleanDuration = conf.cleanDuration * 1000;
 
       // remove filesystem path from steps path
       var steps = _.map(glob.sync(expo+'/*.jp*g'),function(d){ return d.replace(path,'');});
