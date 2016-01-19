@@ -96,11 +96,10 @@ module.exports = function (sockets, tree) {
 
     var prevCaptures = glob.sync(capturePath+'/*/');
     capturePath += _.padLeft( prevCaptures.length + 1, 4, 0)+'/';
-    tree.select('expo', 'capturePath').set(capturePath)
-    captureStack.set([])
+    tree.select('expo', 'capturePath').set(capturePath);
+    captureStack.set([]);
 
     arduinoSendState(1,0,0);
-
     setTimeout(function(){
 
       arduinoSendState(0,0,0);
@@ -197,19 +196,24 @@ module.exports = function (sockets, tree) {
       var isArduino = new RegExp('\\bArduino\\b');
       var port = _(ports).filter(function(p){ return isArduino.test(p.manufacturer) }).first();
 
-      console.log(port.manufacturer, port.comName);
-      if(err)console.log(err);
+      if(err)console.log(err, port);
 
-      var arduino = new serialPort.SerialPort( port.comName, {baudrate: 9600});
+      if(!_.isUndefined(port)) {
+        console.log(port.manufacturer, port.comName);
 
-      arduino.on("open", function(err) {
-        arduino.on('data', function(datain) {
-          console.log("ARD:   " + datain.toString());
-          // dataToPumps(p0,p1,p2)
+
+        var arduino = new serialPort.SerialPort( port.comName, {baudrate: 9600});
+
+        arduino.on("open", function(err) {
+          arduino.on('data', function(datain) {
+            console.log("ARD:   " + datain.toString());
+            // dataToPumps(p0,p1,p2)
+          });
+
+          setTimeout(function(){ dataToPumps(p0,p1,p2) }, 2000)
         });
 
-        setTimeout(function(){ dataToPumps(p0,p1,p2) }, 2000)
-      });
+      }
 
       function dataToPumps(p0,p1,p2){
         pumpByte = p0 | p1<<1 | p2<<2;
@@ -241,7 +245,11 @@ module.exports = function (sockets, tree) {
     return (res.length > 0)
   }
 
-  function incExpo(nb){return (nb + 1) % tree.select('program').get().length ;}
+  function incExpo(nb){
+
+    return (nb + 1) % tree.select('program').get().length;
+
+  }
 
   function getConfigFile(path){
     var files = glob.sync(path+'/*.yaml');
