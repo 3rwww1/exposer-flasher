@@ -44,7 +44,6 @@ module.exports = function (sockets, tree) {
     mkdirp.sync(e.data.currentData);
   })
 
-
   // init
   // killClients();
 
@@ -257,7 +256,7 @@ module.exports = function (sockets, tree) {
     else return YAML.load(files[0]);
   }
   function initClients(){
-    // clientWindows = spawn('bash',[__dirname+'/scripts/clientsInit.sh']);
+    clientWindows = spawn('bash',[__dirname+'/scripts/clientsInit.sh']);
   }
 
   return function() {
