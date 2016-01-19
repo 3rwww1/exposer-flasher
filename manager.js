@@ -7,11 +7,11 @@ var path =  require('path');
 var gm = require('gm');
 var spawn = require('child_process').spawn;
 var del = require('del');
+var serialPort = require("serialport");
 
 module.exports = function (sockets, tree) {
 
   // tree and cursors
-
   var program = tree.select('program');
       program.on('update', function(e){
         console.log(e.data.currentData)
@@ -44,8 +44,16 @@ module.exports = function (sockets, tree) {
     mkdirp.sync(e.data.currentData);
   })
 
+
   // init
-  killClients();
+  // killClients();
+
+  arduinoSendState(1,0,0);
+
+  setTimeout(function(){
+    console.log("ok");
+    arduinoSendState(0,0,0);
+  },5000)
 
   // listen to sockets
   sockets.on('connection', onConnect);
@@ -91,13 +99,19 @@ module.exports = function (sockets, tree) {
     tree.select('expo', 'capturePath').set(capturePath)
     captureStack.set([])
 
-    sockets.emit('newExpo', expo);
+    arduinoSendState(1,0,0);
+
+    setTimeout(function(){
+
+      arduinoSendState(0,0,0);
+      sockets.emit('newExpo', expo);
+
+    },expo.conf.cleanDuration);
+
   }
 
   // send image stack when asked
-  function onGetCaptureStack(){
-    sockets.emit('captureStack', captureStack.get())
-  }
+  function onGetCaptureStack(){ sockets.emit('captureStack', captureStack.get())}
 
   // PROGRAM
 
@@ -174,6 +188,46 @@ module.exports = function (sockets, tree) {
     });
   }
 
+  function arduinoSendState(p0,p1,p2){
+
+    console.log('sendState :',p0,p1,p2);
+
+    serialPort.list( function (err, ports) {
+
+      var isArduino = new RegExp('\\bArduino\\b');
+      var port = _(ports).filter(function(p){ return isArduino.test(p.manufacturer) }).first();
+
+      console.log(port.manufacturer, port.comName);
+      if(err)console.log(err);
+
+      var arduino = new serialPort.SerialPort( port.comName, {baudrate: 9600});
+
+      arduino.on("open", function(err) {
+        arduino.on('data', function(datain) {
+          console.log("ARD:   " + datain.toString());
+          // dataToPumps(p0,p1,p2)
+        });
+
+        setTimeout(function(){ dataToPumps(p0,p1,p2) }, 2000)
+      });
+
+      function dataToPumps(p0,p1,p2){
+        pumpByte = p0 | p1<<1 | p2<<2;
+
+        arduino.write([pumpByte], function(err, results) {
+          if(err)console.log(err);
+          console.log('results ' + results);
+
+          arduino.close(function(err){
+            console.log('closing arduino')
+            if(err)console.log(err);
+          });
+        })
+      }
+    });
+  }
+
+
   // UTILS
   function programHasFlash(program){
     var hasFlash = new RegExp('\\bflash\\b');
@@ -195,7 +249,7 @@ module.exports = function (sockets, tree) {
     else return YAML.load(files[0]);
   }
   function initClients(){
-    clientWindows = spawn('bash',[__dirname+'/scripts/clientsInit.sh']);
+    // clientWindows = spawn('bash',[__dirname+'/scripts/clientsInit.sh']);
   }
 
   return function() {
