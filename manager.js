@@ -178,7 +178,7 @@ module.exports = function (sockets, tree) {
       }
       // image conversion
       gm(filename)
-        .resize(1920, 1080)
+        .resize(expo.conf.screenWidth, expo.conf.screenHeight)
         .write(filename, function (err) {
           if (!err) tree.select('expo','captureStack').push(filename.replace(__dirname+'/content/',''));
           else console.log('💥',err);
