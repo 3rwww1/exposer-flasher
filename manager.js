@@ -45,14 +45,14 @@ module.exports = function (sockets, tree) {
   })
 
   // init
-  // killClients();
+  killClients();
 
   arduinoSendState(1,0,0);
 
   setTimeout(function(){
     console.log("ok");
     arduinoSendState(0,0,0);
-  },5000)
+  },10000)
 
   // listen to sockets
   sockets.on('connection', onConnect);
