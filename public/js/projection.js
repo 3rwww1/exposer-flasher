@@ -22,6 +22,8 @@ function init() {
 
     nextStep();
 
+    $('body').css('background-color',conf.backgroundColor)
+
     console.log(expo);
   }
 

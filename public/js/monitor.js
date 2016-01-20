@@ -10,13 +10,13 @@ function init() {
   // ask for stack on load
   socket.emit('getCaptureStack');
 
+
   var loop = setInterval(onLoop,interval);
   //
   function onNewExpo(data){
     expo = data;
     conf = expo.conf;
     interval = 1000/conf.monitorFPS;
-
     console.log(conf, interval);
   }
 

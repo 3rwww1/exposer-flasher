@@ -7,3 +7,4 @@ monitorFPS: 20          # vitesse de l'animation en images par secondes
 cleanDuration: 5       # temp de nettoyage entre deux expositions
 screenWidth: 1280
 screenHeight: 720
+backgroundColor: Gold
