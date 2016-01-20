@@ -48,8 +48,8 @@ module.exports = function (sockets, tree) {
 
   // init
   killClients();
-  arduinoSendState(1,0,0);
-  setTimeout(function(){ arduinoSendState(0,0,0) },10000);
+  // arduinoSendState(1,0,0);
+  // setTimeout(function(){ arduinoSendState(0,0,0) }, 10000);
 
   // listen to sockets
   sockets.on('connection', onConnect);
@@ -85,6 +85,8 @@ module.exports = function (sockets, tree) {
 
       captureStack.set([]);
       arduinoSendState(1,0,0);
+
+      console.log("💦\t pump for ", tree.get('expo','conf','cleanDuration'));
 
       setTimeout(function(){
 
@@ -179,21 +181,21 @@ module.exports = function (sockets, tree) {
 
   function arduinoSendState(p0,p1,p2){
 
-    console.log('sendState :',p0,p1,p2);
+    console.log('💦\tsendState :',p0,p1,p2);
 
     serialPort.list( function (err, ports) {
 
       var isArduino = new RegExp('\\bArduino\\b');
       var port = _(ports).filter(function(p){ return isArduino.test(p.manufacturer) }).first();
 
-      if(err)console.log(err, port);
+      if(err)console.log('💦\t',err, port);
 
       if(!_.isUndefined(port)) {
         console.log(port.manufacturer, port.comName);
         var arduino = new serialPort.SerialPort( port.comName, {baudrate: 9600});
         arduino.on("open", function(err) {
           arduino.on('data', function(datain) {
-            console.log("ARD:   " + datain.toString());
+            console.log("💦\tARD:   " + datain.toString());
           });
           setTimeout(function(){ dataToPumps(p0,p1,p2) }, 2000);
         });
@@ -204,10 +206,10 @@ module.exports = function (sockets, tree) {
         pumpByte = p0 | p1<<1 | p2<<2;
         arduino.write([pumpByte], function(err, results) {
           if(err)console.log(err);
-          console.log('results ' + results);
+          console.log('💦\t pump signal ' + results);
 
           arduino.close(function(err){
-            console.log('closing arduino')
+            console.log('💦\t closing arduino')
             if(err)console.log(err);
           });
         })
