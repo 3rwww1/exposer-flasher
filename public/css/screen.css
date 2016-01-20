@@ -17,3 +17,11 @@ body {
 a {
   color: #00B7FF;
 }
+
+.hide {
+
+  position: absolute;
+
+  top:7000;
+
+}

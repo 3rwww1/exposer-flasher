@@ -20,10 +20,22 @@ function init() {
     curStep=-1;
     startTime = new Date().getTime();
 
-    nextStep();
+
 
     $('body').css('background-color',conf.backgroundColor)
+    $('body').append('<div id="hide"></div>');
 
+    expo.steps.forEach(function(step){
+
+      var newImage = $('<img>', {
+        src:step,
+        class:'cache'
+      })
+
+      $('#hide').append(newImage);
+    })
+
+    nextStep();
     console.log(expo);
   }
 
@@ -34,7 +46,8 @@ function init() {
   function nextStep(){
     // ask for new exposition if time is over
     if(getDuration() > conf.duration){
-      $("#projection").empty();
+      $("body").empty();
+
       setTimeout(function(){ socket.emit('getNewExpo')}, 3000);
     }else{
       curStep++;
@@ -65,10 +78,10 @@ function init() {
       class:'projection'
     })
 
-    $("#projection").prepend(newImage);
+    $("body").prepend(newImage);
 
-    if($("#projection img").length > 1){
-      setTimeout(function(){$("#projection img").last().remove();}, conf.interval/2);
+    if($("body .projection").length > 1){
+      setTimeout(function(){$("body .projection").last().remove();}, conf.interval/2);
     }
   }
 
