@@ -29,6 +29,8 @@ module.exports = function (sockets, tree) {
         sockets.emit('captureStack', tree.select('expo','captureStack').get())
       })
 
+  var conf = tree.select('expo','data','conf')
+
   tree.select('captureEnable').on('update', function(e){
     console.log('🔄\t program will '+(e.data.currentData?'':'not')+'need captures.');
 
@@ -88,14 +90,14 @@ module.exports = function (sockets, tree) {
       captureStack.set([]);
       arduinoSendState(1,0,0);
 
-      console.log("💦\t pump for ", tree.get('expo','data','conf','cleanDuration'));
+      console.log("💦\t pump stops in ", conf.get('cleanDuration'));
 
       setTimeout(function(){
 
         arduinoSendState(0,0,0);
         sockets.emit('newExpo', expo);
 
-      }, tree.get('expo','conf','cleanDuration') );
+      }, conf.get('cleanDuration'));
 
     }else{
       sockets.emit('newExpo', expo);
@@ -166,23 +168,28 @@ module.exports = function (sockets, tree) {
       --force-overwrite --filename ' + filename;
 
     exec(cmd, function (err, stdout, stderr) {
-      if (!err) { console.log('📷\t new capture : ', path.basename(filename));
-      } else {
-        console.log('💥',err); sockets.emit('captureEnd');
-      }
-      // image conversion
-      gm(filename)
-        .resize(expo.get('conf','screenWidth'), expo.get('conf','screenHeight'))
+      if (!err) {
+
+        console.log('📷\t new capture : ', path.basename(filename));
+
+        // image conversion
+        gm(filename)
+        .resize(conf.get('screenWidth'), conf.get('screenHeight'))
         .write(filename, function (err) {
           if (!err) tree.select('expo','captureStack').push(filename.replace(__dirname+'/content/',''));
           else console.log('💥',err);
         });
+
+      } else {
+        console.log('💥',err); sockets.emit('captureEnd');
+      }
+
     });
   }
 
   function arduinoSendState(p0,p1,p2){
 
-    console.log('💦\tsendState :',p0,p1,p2);
+    console.log('💦\t',p0,p1,p2);
 
     serialPort.list( function (err, ports) {
 
