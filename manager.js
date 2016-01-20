@@ -68,6 +68,7 @@ module.exports = function (sockets, tree) {
   function onExpoUpdate(e){
     var expo = e.data.currentData;
 
+
     console.log('☀\t',expo.id,expo.path);
     console.log('☀\t start ','for '+expo.conf.duration+' sec. every '+expo.conf.interval+' sec.');
 
@@ -77,16 +78,17 @@ module.exports = function (sockets, tree) {
 
     var prevCaptures = glob.sync(capturePath+'/*/');
     capturePath += _.padLeft( prevCaptures.length + 1, 4, 0)+'/';
+
     tree.select('expo', 'capturePath').set(capturePath);
 
-    console.log('expoId:::',tree.get('expo','id'));
+    console.log('🔄\t expo ',tree.get('expo','id'));
 
     if(tree.get('expo','id') === 1){
 
       captureStack.set([]);
       arduinoSendState(1,0,0);
 
-      console.log("💦\t pump for ", tree.get('expo','conf','cleanDuration'));
+      console.log("💦\t pump for ", tree.get('expo','data','conf','cleanDuration'));
 
       setTimeout(function(){
 
@@ -121,7 +123,6 @@ module.exports = function (sockets, tree) {
       // convert configs values
       conf.duration = conf.duration * 1000 * 60;
       conf.interval = conf.interval * 1000;
-      conf.animUpdateInterval = conf.animUpdateInterval * 1000;
       conf.cleanDuration = conf.cleanDuration * 1000;
 
       // remove filesystem path from steps path
