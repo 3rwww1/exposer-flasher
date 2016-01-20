@@ -95,7 +95,8 @@ module.exports = function (sockets, tree) {
       setTimeout(function(){
 
         arduinoSendState(0,0,0);
-        sockets.emit('newExpo', expo);
+
+        setTimeout(function(){ sockets.emit('newExpo', expo)}, 2500);
 
       }, conf.get('cleanDuration'));
 
