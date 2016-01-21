@@ -184,7 +184,7 @@ module.exports = function (sockets, tree) {
             var name = filename.replace(__dirname+'/content/','');
 
             tree.select('expo','captureStack').push(name);
-            sockets.emit('captureEnd');
+            // sockets.emit('captureEnd');
 
           } else {
             console.log('💥',err);
