@@ -35,12 +35,10 @@ function init() {
   }
 
   function onNewCapture(capture){
+    console.log(capture)
     stack.push(capture);
-    var newImage = $('<img>', { width:'100%', src:capture, class:'capture'})
+    var newImage = $('<img>', {id:'i'+stack.length, width:'100%', src:capture, class:'capture'})
     $("#monitor").append(newImage);
   }
-
-
 };
-
 $(document).on('ready', init);
