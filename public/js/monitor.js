@@ -17,7 +17,7 @@ function init() {
 
 
   function nextFrame(){
-    $('#monitor img:last').after($('#monitor img:firt'));
+    $('#monitor img:last').after($('#monitor img:first'));
   }
 
   //
