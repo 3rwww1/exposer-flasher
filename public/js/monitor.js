@@ -5,13 +5,21 @@ function init() {
 
   // io messages
   socket.on('captureStack', onCaptureStack);
+
+  socket.on('newCapture', onNewCapture);
   socket.on('newExpo', onNewExpo)
 
   // ask for stack on load
   socket.emit('getCaptureStack');
 
 
-  var loop = setInterval(onLoop,interval);
+  var loop = setInterval(nextFrame,interval);
+
+
+  function nextFrame(){
+    $('#monitor img:last').after($('#monitor img:firt'));
+  }
+
   //
   function onNewExpo(data){
     expo = data;
@@ -23,25 +31,16 @@ function init() {
   function onCaptureStack(newStack){
     stack = newStack;
     console.log(stack.length,'captures in stack');
+    newStack.forEach(function(capture){ onNewCapture(capture); });
   }
 
-  function onLoop(){
-    curCapture ++ ;
-    injectImg();
-  }
-
-  function injectImg(){
-    var newImage = $('<img>', {
-      width:'100%',
-      src:stack[curCapture % stack.length],
-      class:'capture'
-    })
+  function onNewCapture(capture){
+    stack.push(capture);
+    var newImage = $('<img>', { width:'100%', src:capture, class:'capture'})
     $("#monitor").append(newImage);
-
-    if($("#monitor img").length > 1){
-      setTimeout(function(){$("#monitor img").first().remove();}, interval/2);
-    }
   }
+
+
 };
 
 $(document).on('ready', init);

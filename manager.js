@@ -26,7 +26,9 @@ module.exports = function (sockets, tree) {
 
   var captureStack = tree.select('expo', 'captureStack');
       captureStack.on('update', function(e){
-        sockets.emit('captureStack', tree.select('expo','captureStack').get())
+        var stack = e.data.currentData;
+        //sockets.emit('captureStack', tree.select('expo','captureStack').get())
+        if(stack.length > 1) sockets.emit('newCapture', _.last(stack));
       })
 
   var conf = tree.select('expo','data','conf')
@@ -50,8 +52,6 @@ module.exports = function (sockets, tree) {
 
   // init
   killClients();
-  // arduinoSendState(1,0,0);
-  // setTimeout(function(){ arduinoSendState(0,0,0) }, 10000);
 
   // listen to sockets
   sockets.on('connection', onConnect);
@@ -61,7 +61,7 @@ module.exports = function (sockets, tree) {
 
     socket.on('capture', capture);
     socket.on('getNewExpo', function(){
-      setTimeout(function(){ tree.select('expo','id').apply(incExpo) }, 1000);
+      setTimeout(function(){ tree.select('expo','id').apply(incExpo) }, 1500);
     });
     socket.on('getCaptureStack', onGetCaptureStack);
   }
@@ -87,12 +87,14 @@ module.exports = function (sockets, tree) {
 
     if(tree.get('expo','id') === 1){
 
-      captureStack.set([]);
       arduinoSendState(1,0,0);
-
       console.log("💦\t pump stops in ", conf.get('cleanDuration'));
 
       setTimeout(function(){
+
+        // empty the stack and send it to client
+        captureStack.set([]);
+        onGetCaptureStack();
 
         arduinoSendState(0,0,0);
 
@@ -106,7 +108,7 @@ module.exports = function (sockets, tree) {
   }
 
   // send image stack when asked
-  function onGetCaptureStack(){ sockets.emit('captureStack', captureStack.get())}
+  function onGetCaptureStack(){ sockets.emit('captureStack', captureStack.get()) }
 
   // PROGRAM
 
@@ -178,8 +180,16 @@ module.exports = function (sockets, tree) {
         .resize(conf.get('screenWidth'), conf.get('screenHeight'))
         .quality(90)
         .write(filename, function (err) {
-          if (!err) tree.select('expo','captureStack').push(filename.replace(__dirname+'/content/',''));
-          else console.log('💥',err);
+          if (!err) {
+
+            var name = filename.replace(__dirname+'/content/','');
+
+            tree.select('expo','captureStack').push(name);
+            sockets.emit('captureEnd');
+
+          } else {
+            console.log('💥',err);
+          }
         });
 
       } else {
