@@ -35,7 +35,7 @@ function init() {
 
     console.log(capture);
 
-    console.log($('#i'+(stack.length-1));
+    // console.log($('#i'+(stack.length-1)));
 
     var newImage = $('<img>', {id:'i'+stack.length, width:'100%', src:capture, class:'capture'})
 
