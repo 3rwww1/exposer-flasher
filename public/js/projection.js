@@ -20,8 +20,6 @@ function init() {
     curStep=-1;
     startTime = new Date().getTime();
 
-
-
     $('body').css('background-color',conf.backgroundColor)
     $('body').append('<div id="hide"></div>');
 

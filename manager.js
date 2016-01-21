@@ -70,7 +70,6 @@ module.exports = function (sockets, tree) {
   function onExpoUpdate(e){
     var expo = e.data.currentData;
 
-
     console.log('☀\t',expo.id,expo.path);
     console.log('☀\t start ','for '+expo.conf.duration+' sec. every '+expo.conf.interval+' sec.');
 
@@ -189,11 +188,13 @@ module.exports = function (sockets, tree) {
 
           } else {
             console.log('💥',err);
+            sockets.emit('captureEnd');
           }
         });
 
       } else {
-        console.log('💥',err); sockets.emit('captureEnd');
+        console.log('💥',err);
+        sockets.emit('captureEnd');
       }
 
     });

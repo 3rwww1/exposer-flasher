@@ -25,3 +25,11 @@ a {
   top:7000;
 
 }
+
+
+#monitor img {
+  display: none;
+}
+#monitor img:first-child {
+  display: block;
+}

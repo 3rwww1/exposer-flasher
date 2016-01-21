@@ -5,22 +5,16 @@ function init() {
 
   // io messages
   socket.on('captureStack', onCaptureStack);
-
   socket.on('newCapture', onNewCapture);
   socket.on('newExpo', onNewExpo)
 
   // ask for stack on load
   socket.emit('getCaptureStack');
 
-
   var loop = setInterval(nextFrame,interval);
+  function nextFrame(){ $('#monitor img:last').after($('#monitor img:first')); }
 
-
-  function nextFrame(){
-    $('#monitor img:last').after($('#monitor img:first'));
-  }
-
-  //
+  // handlers
   function onNewExpo(data){
     expo = data;
     conf = expo.conf;
@@ -31,8 +25,8 @@ function init() {
   function onCaptureStack(newStack){
     stack = newStack;
     console.log(stack.length,'captures in stack');
-    $("#monitor").empty();
 
+    $("#monitor").empty();
     newStack.forEach(function(capture){ onNewCapture(capture); });
   }
 
