@@ -28,7 +28,7 @@ module.exports = function (sockets, tree) {
       captureStack.on('update', function(e){
         var stack = e.data.currentData;
         //sockets.emit('captureStack', tree.select('expo','captureStack').get())
-        if(stack.length > 1) sockets.emit('newCapture', _.last(stack));
+        if(stack.length > 0) sockets.emit('newCapture', _.last(stack));
       })
 
   var conf = tree.select('expo','data','conf')
