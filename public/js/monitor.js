@@ -31,10 +31,11 @@ function init() {
   }
 
   function onNewCapture(capture){
-    console.log(capture)
     stack.push(capture);
+
     var newImage = $('<img>', {id:'i'+stack.length, width:'100%', src:capture, class:'capture'})
-    $("#monitor").append(newImage);
+
+    $('#i'+(stack.length-1)).after(newImage);
   }
 };
 $(document).on('ready', init);
