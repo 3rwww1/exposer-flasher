@@ -31,6 +31,8 @@ function init() {
   function onCaptureStack(newStack){
     stack = newStack;
     console.log(stack.length,'captures in stack');
+    $("#monitor").empty();
+
     newStack.forEach(function(capture){ onNewCapture(capture); });
   }
 
