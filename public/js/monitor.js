@@ -33,9 +33,17 @@ function init() {
   function onNewCapture(capture){
     stack.push(capture);
 
+    console.log(capture);
+
+    console.log($('#i'+(stack.length-1));
+
     var newImage = $('<img>', {id:'i'+stack.length, width:'100%', src:capture, class:'capture'})
 
-    $('#i'+(stack.length-1)).after(newImage);
+    if(stack.length > 1){
+     $('#i'+(stack.length-1)).after(newImage)
+    }else{
+      $("#monitor").append(newImage);
+    }
   }
 };
 $(document).on('ready', init);
