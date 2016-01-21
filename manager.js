@@ -180,21 +180,16 @@ module.exports = function (sockets, tree) {
         .quality(90)
         .write(filename, function (err) {
           if (!err) {
-
             var name = filename.replace(__dirname+'/content/','');
-
             tree.select('expo','captureStack').push(name);
-            // sockets.emit('captureEnd');
-
           } else {
             console.log('💥',err);
-            // sockets.emit('captureEnd');
           }
         });
 
       } else {
         console.log('💥',err);
-        sockets.emit('captureEnd');
+         setTimeout(function(){ sockets.emit('captureEnd'), 2000});
       }
 
     });
