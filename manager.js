@@ -188,7 +188,7 @@ module.exports = function (sockets, tree) {
 
           } else {
             console.log('💥',err);
-            sockets.emit('captureEnd');
+            // sockets.emit('captureEnd');
           }
         });
 
