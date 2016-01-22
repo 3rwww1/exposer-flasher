@@ -177,7 +177,7 @@ module.exports = function (sockets, tree) {
         // image conversion
         gm(filename)
         .resize(conf.get('screenWidth'), conf.get('screenHeight'))
-        .quality(90)
+        .quality(70)
         .write(filename, function (err) {
           if (!err) {
             var name = filename.replace(__dirname+'/content/','');
