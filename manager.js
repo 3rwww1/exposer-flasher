@@ -8,6 +8,7 @@ var gm = require('gm');
 var spawn = require('child_process').spawn;
 var del = require('del');
 var serialPort = require("serialport");
+var onExit = require('on-exit');
 
 module.exports = function (sockets, tree) {
 
@@ -56,6 +57,10 @@ module.exports = function (sockets, tree) {
   // listen to sockets
   sockets.on('connection', onConnect);
 
+  onExit(function() {
+    console.log('"💦\t pump stops !');
+    arduinoSendState(0,0,0);
+  });
   // on new client create socket events
   function onConnect(socket){
 
@@ -177,7 +182,7 @@ module.exports = function (sockets, tree) {
         // image conversion
         gm(filename)
         .resize(conf.get('screenWidth'), conf.get('screenHeight'))
-        .quality(70)
+        .quality(conf.get('imageQuality'))
         .write(filename, function (err) {
           if (!err) {
             var name = filename.replace(__dirname+'/content/','');
