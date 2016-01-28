@@ -4,6 +4,8 @@ bower_components/
 content/
 node_modules/
 
+*.mp4
+*.mov
 tmpfile*
 
 # Windows image file caches
