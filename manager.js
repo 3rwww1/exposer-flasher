@@ -258,8 +258,15 @@ module.exports = function (sockets, tree) {
     else return YAML.load(files[0]);
   }
   function initClients(){
-    clientWindows = spawn('bash',[__dirname+'/scripts/clientsInit.sh']);
+    if(conf.get('showMonitor')) initClient('initMonitor');
+    if(conf.get('showProjection')) initClient('initProjection');
+    if(conf.get('showVideoBackup')) initClient('initVideoBackup');
   }
+
+  function initClient(script){
+    clientWindows = spawn('bash',[__dirname+'/scripts/'+script+'.sh']);
+  }
+
 
   return function() {
     sockets.off('connection', onConnect);

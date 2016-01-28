@@ -8,4 +8,7 @@ cleanDuration: 5        # temp de nettoyage entre deux expositions
 screenWidth: 1366       # largeur écran
 screenHeight: 768       # hauteur écran
 backgroundColor: "#BFBFBF" # couleur fond en hexa (#BFBFBF)
-isLive: true # montrer le moniteur en live [true|false]
+
+showMonitor: true        # afficher le moniteur en live [true|false]
+showVideoBackup: false   # afficher la video de secours [true|false]
+showProjection: true     # afficher la projection sur l'aquarium [true|false]
