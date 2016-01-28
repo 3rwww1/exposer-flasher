@@ -67,7 +67,6 @@ module.exports = function (sockets, tree) {
 
   if(conf.get('showLiveVlc')) setInterval(refreshTimelaps, 360000);
 
-  }
   // on new client create socket events
   function onConnect(socket){
 
