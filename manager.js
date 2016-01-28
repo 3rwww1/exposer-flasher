@@ -9,6 +9,9 @@ var spawn = require('child_process').spawn;
 var del = require('del');
 var serialPort = require("serialport");
 var onExit = require('on-exit');
+var ffmpeg = require('fluent-ffmpeg');
+var fs = require('fs');
+
 
 module.exports = function (sockets, tree) {
 
@@ -61,6 +64,10 @@ module.exports = function (sockets, tree) {
     console.log('"💦\t pump stops !');
     arduinoSendState(0,0,0);
   });
+
+  if(conf.get('showLiveVlc')) setInterval(refreshTimelaps, 360000);
+
+  }
   // on new client create socket events
   function onConnect(socket){
 
@@ -80,7 +87,7 @@ module.exports = function (sockets, tree) {
 
     // create capture path
     var capturePath = expo.path+'/captures/';
-    if(!expo.conf.backup) del(capturePath+'/*/');
+    // if(!expo.conf.backup) del(capturePath+'/*/');
 
     var prevCaptures = glob.sync(capturePath+'/*/');
     capturePath += _.padLeft( prevCaptures.length + 1, 4, 0)+'/';
@@ -149,7 +156,7 @@ module.exports = function (sockets, tree) {
 
   // kill all previously opened browsers
   function killClients(){
-    var cmd = 'killall PTPCamera; killall -9 "Google Chrome"; killall -9 "Chromium";';
+    var cmd = 'killall PTPCamera; killall -9 "Google Chrome";killall -9 "VLC"; killall -9 "Chromium";';
     exec(cmd, function(err, stdout, stderr) { if(err !== null) console.log('error while killing clients',err);});
   }
 
@@ -200,6 +207,53 @@ module.exports = function (sockets, tree) {
     });
   }
 
+  function refreshTimelaps( speed, zoom){
+
+    // compilation de la video "live" à partir des JPEG pris par l'appareil photo
+
+    speed = typeof speed !== 'undefined' ? speed : 1;
+    zoom  = typeof zoom  !== 'undefined' ? zoom  : 1;
+
+    var mov_w  = 1920,
+        mov_h  = 1037,
+        ratio  = mov_w/mov_h,
+        crop_w = Math.round(mov_w*zoom),
+        crop_h = Math.round(crop_w/ratio),
+        //crop_x = Math.round((crop_w - mov_w)/2),
+        //crop_y = Math.round((crop_h - mov_h)/2),
+        crop_x = crop_w - mov_w, //nbpixels*crop_w
+        crop_y = 0, //nbpixels*crop_h
+        speedTransfo = 1+(speed - 1)/7,
+
+        movie = new ffmpeg();
+
+        tree.get('program').forEach(function(exp){
+
+          var capturePath = exp.path+'/captures/';
+          var prevCaptures = glob.sync(capturePath+'/*/');
+
+          console.log('🎥\t add', _.last(prevCaptures), ' to queue');
+          if(_.last(prevCaptures).length > 0) movie.addInput(_.last(prevCaptures)+'%04d.jpg');
+        })
+
+        movie.withFps(25)
+        //crf valeur à modifier si l'on veut que la vidéo se compile plus rapidement. On agit ici sur la compression et la qualité de la vidéo.
+        .addOptions(['-pix_fmt yuv420p','-c:v libx264', '-preset ultrafast', '-crf 22'])
+        .addOptions(['-r 25'])
+        .withVideoFilter('scale='+crop_w+':-1')
+        .withVideoFilter('crop='+mov_w+':'+mov_h+':'+crop_x+':'+crop_y+'')
+        .withVideoFilter('setpts=(1*'+speedTransfo+')*PTS')
+        .on('end', function(){
+          console.log('refreshTimelaps ok !');
+          fs.renameSync('public/live.tmp.mp4','public/live.mp4');
+
+        })
+        .on('error', function(err) { console.log('an error happened: ' + err.message);})
+        .saveToFile('public/live.tmp.mp4');
+
+  };
+
+  // send pump state to arduino
   function arduinoSendState(p0,p1,p2){
 
     console.log('💦\t',p0,p1,p2);
@@ -263,13 +317,17 @@ module.exports = function (sockets, tree) {
     else return YAML.load(files[0]);
   }
   function initClients(){
+    console.log('init clients');
+
     if(conf.get('showMonitor')) initClient('initMonitor');
     if(conf.get('showProjection')) initClient('initProjection');
     if(conf.get('showVideoBackup')) initClient('initVideoBackup');
+    if(conf.get('showLiveVlc')) var clientWindows = spawn('bash',[__dirname+'/scripts/initLiveVlc.sh', 'public/live.mp4']);
+
   }
 
   function initClient(script){
-    clientWindows = spawn('bash',[__dirname+'/scripts/'+script+'.sh']);
+    var clientWindows = spawn('bash',[__dirname+'/scripts/'+script+'.sh']);
   }
 
 

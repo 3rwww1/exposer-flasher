@@ -2,7 +2,7 @@
 
 duration: 1             # temp en minutes
 interval: 4             # interval entre deux images en secondes
-backup: false           # garder une copie des captures ? [true|false]
+backup: true           # garder une copie des captures ? [true|false]
 monitorFPS: 20          # vitesse de l'animation en images par secondes
 cleanDuration: 5        # temp de nettoyage entre deux expositions
 
@@ -12,6 +12,9 @@ screenWidth: 1366       # largeur écran
 screenHeight: 768       # hauteur écran
 backgroundColor: "#BFBFBF" # couleur fond en hexa (#BFBFBF)
 
-showMonitor: true        # afficher le moniteur en live [true|false]
-showVideoBackup: false   # afficher la video de secours [true|false]
-showProjection: true     # afficher la projection sur l'aquarium [true|false]
+showMonitor: false        # afficher le moniteur en live [true|false]
+showVideoBackup: false    # afficher la video de secours [true|false]
+showProjection: false     # afficher la projection sur l'aquarium [true|false]
+showProjection: false     # afficher la projection sur l'aquarium [true|false]
+showLiveVlc: true         # show vlc player with live video
+
