@@ -28,18 +28,18 @@ module.exports = function (sockets, tree) {
   var expo = tree.select('expo', 'data');
       expo.on('update', onExpoUpdate);
 
+  var conf = tree.select('expo','data','conf')
+
   var captureStack = tree.select('expo', 'captureStack');
       captureStack.on('update', function(e){
         var stack = e.data.currentData;
         //sockets.emit('captureStack', tree.select('expo','captureStack').get())
         if(stack.length > 0) sockets.emit('newCapture', _.last(stack));
+        if((stack.length % 25 === 24) && conf.get('showLiveVlc')) refreshTimelaps();
       })
-
-  var conf = tree.select('expo','data','conf')
 
   tree.select('captureEnable').on('update', function(e){
     console.log('🔄\t program will '+(e.data.currentData?'':'not')+'need captures.');
-
     if(e.data.currentData) captureInit();
     else initClients();
   })
@@ -65,7 +65,6 @@ module.exports = function (sockets, tree) {
     arduinoSendState(0,0,0);
   });
 
-  if(conf.get('showLiveVlc')) setInterval(refreshTimelaps, 360000);
 
   // on new client create socket events
   function onConnect(socket){
@@ -262,10 +261,10 @@ module.exports = function (sockets, tree) {
       var isArduino = new RegExp('\\bArduino\\b');
       var port = _(ports).filter(function(p){ return isArduino.test(p.manufacturer) }).first();
 
-      if(err)console.log('💦\t',err, port);
+      if(err) console.log('💦\t',err, port);
 
       if(!_.isUndefined(port)) {
-        console.log(port.manufacturer, port.comName);
+        console.log('💦\t',p0,p1,p2, port.comName, port.manufacturer);
         var arduino = new serialPort.SerialPort( port.comName, {baudrate: 9600});
         arduino.on("open", function(err) {
           arduino.on('data', function(datain) {

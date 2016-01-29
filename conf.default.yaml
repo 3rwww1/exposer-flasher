@@ -15,6 +15,4 @@ backgroundColor: "#BFBFBF" # couleur fond en hexa (#BFBFBF)
 showMonitor: false        # afficher le moniteur en live [true|false]
 showVideoBackup: false    # afficher la video de secours [true|false]
 showProjection: false     # afficher la projection sur l'aquarium [true|false]
-showProjection: false     # afficher la projection sur l'aquarium [true|false]
 showLiveVlc: true         # show vlc player with live video
-
