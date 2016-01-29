@@ -231,7 +231,7 @@ module.exports = function (sockets, tree) {
           var prevCaptures = glob.sync(capturePath+'/*/');
 
           console.log('🎥\t add', _.last(prevCaptures), ' to queue');
-          if(_.last(prevCaptures).length > 0) movie.addInput(_.last(prevCaptures)+'%04d.jpg');
+          if(prevCaptures.length > 0) movie.addInput(_.last(prevCaptures)+'%04d.jpg');
         })
 
         movie.withFps(25)
