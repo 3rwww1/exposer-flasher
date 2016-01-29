@@ -7,7 +7,7 @@ monitorFPS: 20              # vitesse de l'animation en images par secondes
 cleanDuration: 5            # temp de nettoyage entre deux expositions
 
 imageQuality: 60            # compression du jpeg (1-100)
-timelapsRefresh: 24         # fréquence de compilation de la video en frame
+timelapsRefresh: 12         # fréquence de compilation de la video en frame
 
 screenWidth: 1366           # largeur écran
 screenHeight: 768           # hauteur écran

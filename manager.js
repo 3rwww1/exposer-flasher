@@ -207,6 +207,7 @@ module.exports = function (sockets, tree) {
     });
   }
 
+  setTimeout(refreshTimelaps, 3000)
   function refreshTimelaps( speed, zoom){
 
     // compilation de la video "live" à partir des JPEG pris par l'appareil photo
@@ -226,7 +227,6 @@ module.exports = function (sockets, tree) {
         speedTransfo = 1+(speed - 1)/7,
 
         movie = new ffmpeg();
-
         tree.get('program').forEach(function(exp){
 
           var capturePath = exp.path+'/captures/';
@@ -239,9 +239,9 @@ module.exports = function (sockets, tree) {
 
             if(imageCount > 0){
               console.log('🎥\t add ',imageCount,' img from ',lastCapture, ' to queue');
-              movie.addInput(lastCapture+'%04d.jpg');
+              movie.addInput(lastCapture+'*.jpg');
+              movie.inputOption(['-pattern_type','glob']);
             }
-
           }
         })
 
@@ -279,7 +279,7 @@ module.exports = function (sockets, tree) {
         var arduino = new serialPort.SerialPort( port.comName, {baudrate: 9600});
         arduino.on("open", function(err) {
           arduino.on('data', function(datain) {
-            console.log("💦\tARD:   " + datain.toString());
+            console.log('💦\t ',port.comName,' response : '+ datain.toString());
           });
           setTimeout(function(){ dataToPumps(p0,p1,p2) }, 2000);
         });
