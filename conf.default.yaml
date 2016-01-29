@@ -1,18 +1,19 @@
 # EXPOSER/FLASHER
 
-duration: 1             # temp en minutes
-interval: 4             # interval entre deux images en secondes
-backup: true           # garder une copie des captures ? [true|false]
-monitorFPS: 20          # vitesse de l'animation en images par secondes
-cleanDuration: 5        # temp de nettoyage entre deux expositions
+duration: 1                 # temp en minutes
+interval: 4                 # interval entre deux images en secondes
+backup: true                # garder une copie des captures ? [true|false]
+monitorFPS: 20              # vitesse de l'animation en images par secondes
+cleanDuration: 5            # temp de nettoyage entre deux expositions
 
-imageQuality: 60        # compression du jpeg (1-100)
+imageQuality: 60            # compression du jpeg (1-100)
+timelapsRefresh: 24         # fréquence de compilation de la video en frame
 
-screenWidth: 1366       # largeur écran
-screenHeight: 768       # hauteur écran
-backgroundColor: "#BFBFBF" # couleur fond en hexa (#BFBFBF)
+screenWidth: 1366           # largeur écran
+screenHeight: 768           # hauteur écran
+backgroundColor: "#BFBFBF"  # couleur fond en hexa (#BFBFBF)
 
-showMonitor: false        # afficher le moniteur en live [true|false]
-showVideoBackup: false    # afficher la video de secours [true|false]
-showProjection: false     # afficher la projection sur l'aquarium [true|false]
-showLiveVlc: true         # show vlc player with live video
+showMonitor: false          # afficher le moniteur en live [true|false]
+showVideoBackup: false      # afficher la video de secours [true|false]
+showProjection: false       # afficher la projection sur l'aquarium [true|false]
+showLiveVlc: true           # show vlc player with live video

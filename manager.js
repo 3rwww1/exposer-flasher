@@ -35,7 +35,7 @@ module.exports = function (sockets, tree) {
         var stack = e.data.currentData;
         //sockets.emit('captureStack', tree.select('expo','captureStack').get())
         if(stack.length > 0) sockets.emit('newCapture', _.last(stack));
-        if((stack.length % 25 === 24) && conf.get('showLiveVlc')) refreshTimelaps();
+        if((stack.length % conf.get('timelapsRefresh') === (conf.get('timelapsRefresh')-1)) && conf.get('showLiveVlc')) refreshTimelaps();
       })
 
   tree.select('captureEnable').on('update', function(e){
@@ -230,8 +230,17 @@ module.exports = function (sockets, tree) {
           var capturePath = exp.path+'/captures/';
           var prevCaptures = glob.sync(capturePath+'/*/');
 
-          console.log('🎥\t add', _.last(prevCaptures), ' to queue');
-          if(prevCaptures.length > 0) movie.addInput(_.last(prevCaptures)+'%04d.jpg');
+          if(prevCaptures.length > 0){
+
+            var lastCapture = _.last(prevCaptures);
+            var imageCount = glob.sync(lastCapture+'*.jpg').length;
+
+            if(imageCount > 0){
+              console.log('🎥\t add ',imageCount,' img from ',lastCapture, ' to queue');
+              movie.addInput(lastCapture+'%04d.jpg');
+            }
+
+          }
         })
 
         movie.withFps(25)
