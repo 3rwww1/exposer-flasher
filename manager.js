@@ -35,7 +35,9 @@ module.exports = function (sockets, tree) {
         var stack = e.data.currentData;
         //sockets.emit('captureStack', tree.select('expo','captureStack').get())
         if(stack.length > 0) sockets.emit('newCapture', _.last(stack));
-        if((stack.length % conf.get('timelapsRefresh') === ( Math.round(conf.get('timelapsRefresh') / 2 ) ) && conf.get('showLiveVlc')) refreshTimelaps();
+        var r = conf.get('timelapsRefresh');
+
+        if((stack.length % r === Math.round(r / 2)) && conf.get('showLiveVlc') ) refreshTimelaps();
       })
 
   tree.select('captureEnable').on('update', function(e){
