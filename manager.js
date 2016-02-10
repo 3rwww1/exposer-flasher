@@ -227,12 +227,12 @@ module.exports = function (sockets, tree) {
         speedTransfo = 1+(speed - 1)/7,
 
         movie = new ffmpeg();
-        tree.get('program').forEach(function(exp){
+        tree.get('program').forEach(function(exp, i){
 
           var capturePath = exp.path+'/captures/';
           var prevCaptures = glob.sync(capturePath+'/*/');
 
-          if(prevCaptures.length > 0){
+          if((prevCaptures.length > 0) && (i >= tree.get('expo','id')) ){
 
             var lastCapture = _.last(prevCaptures);
             var imageCount = glob.sync(lastCapture+'*.jpg').length;

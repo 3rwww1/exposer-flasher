@@ -8,7 +8,6 @@ function init() {
   var player = document.getElementById("live");
 
   $('#live').bind('ended',function(){
-    console.log('Video has ended!');
     refreshLive();
   });
 
