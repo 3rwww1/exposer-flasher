@@ -327,7 +327,7 @@ module.exports = function (sockets, tree) {
   function initClients(){
     console.log('init clients');
 
-    if(conf.get('( showMonitor')) initClient('initMonitor');
+    if(conf.get('showMonitor')) initClient('initMonitor');
     if(conf.get('showProjection')) initClient('initProjection');
     if(conf.get('showVideoBackup')) initClient('initVideoBackup');
     if(conf.get('showLiveVlc')) var clientWindows = spawn('bash',[__dirname+'/scripts/initLiveVlc.sh', 'public/live.mp4']);
