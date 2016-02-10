@@ -255,7 +255,6 @@ module.exports = function (sockets, tree) {
         .on('end', function(){
           console.log('refreshTimelaps ok !');
           fs.renameSync('public/live.tmp.mp4','public/live.mp4');
-
         })
         .on('error', function(err) { console.log('an error happened: ' + err.message);})
         .saveToFile('public/live.tmp.mp4');
