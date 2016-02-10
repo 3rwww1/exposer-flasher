@@ -232,7 +232,7 @@ module.exports = function (sockets, tree) {
           var capturePath = exp.path+'/captures/';
           var prevCaptures = glob.sync(capturePath+'/*/');
 
-          if((prevCaptures.length > 0) && (i >= tree.get('expo','id')) ){
+          if((prevCaptures.length > 0) && (i <= tree.get('expo','id')) ){
 
             var lastCapture = _.last(prevCaptures);
             var imageCount = glob.sync(lastCapture+'*.jpg').length;
