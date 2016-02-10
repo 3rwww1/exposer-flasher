@@ -37,7 +37,7 @@ module.exports = function (sockets, tree) {
         if(stack.length > 0) sockets.emit('newCapture', _.last(stack));
         var r = conf.get('timelapsRefresh');
 
-        if((stack.length % r === Math.round(r / 2)) && conf.get('showMonitor') ) refreshTimelaps();
+        if((stack.length % r === Math.round(r / 2)) && ( conf.get('showMonitor') || conf.get('showLiveVlc') ) ) refreshTimelaps();
       })
 
   tree.select('captureEnable').on('update', function(e){
@@ -327,7 +327,7 @@ module.exports = function (sockets, tree) {
   function initClients(){
     console.log('init clients');
 
-    if(conf.get('showMonitor')) initClient('initMonitor');
+    if(conf.get('( showMonitor')) initClient('initMonitor');
     if(conf.get('showProjection')) initClient('initProjection');
     if(conf.get('showVideoBackup')) initClient('initVideoBackup');
     if(conf.get('showLiveVlc')) var clientWindows = spawn('bash',[__dirname+'/scripts/initLiveVlc.sh', 'public/live.mp4']);
