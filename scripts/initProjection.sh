@@ -2,6 +2,9 @@
 
 osascript <<EOF
   tell application "Chromium"
+
+    delay 10
+
     open location "http://localhost:3000/projection"
 
     delay 1
