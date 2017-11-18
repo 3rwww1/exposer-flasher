@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start": "rm public/live.mp4 && node start.js",
+    "start": "rm public/live.mp4 ; node start.js",
     "restart": "node start.js",
     "start-hmr": "kotatsu start -s start.js",
     "clients": "bash ./scripts/clientsInit.sh"
