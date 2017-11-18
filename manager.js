@@ -235,18 +235,18 @@ module.exports = function (sockets, tree) {
           if((prevCaptures.length > 0) && (i <= tree.get('expo','id')) ){
 
             var lastCapture = _.last(prevCaptures);
-            var imageCount = glob.sync(lastCapture+'*.jpg').length;
+            var images = glob.sync(lastCapture+'*.jpg');
+            var imageCount = images.length;
 
             if(imageCount > 0){
+              var lastImage = _.last(images);
               console.log('🎥\t add ',imageCount,' img from ',lastCapture, ' to queue');
-              movie.addInput(lastCapture+'*.jpg');
-              movie.inputOption(['-pattern_type','glob']);
+              movie.addInput(lastImage);
             }
           }
         })
 
         movie.withFps(25)
-        //crf valeur à modifier si l'on veut que la vidéo se compile plus rapidement. On agit ici sur la compression et la qualité de la vidéo.
         .addOptions(['-pix_fmt yuv420p','-c:v libx264', '-preset ultrafast', '-crf 22'])
         .addOptions(['-r 25'])
         .withVideoFilter('scale='+crop_w+':-1')
@@ -254,9 +254,29 @@ module.exports = function (sockets, tree) {
         .withVideoFilter('setpts=(1*'+speedTransfo+')*PTS')
         .on('end', function(){
           console.log('refreshTimelaps ok !');
-          fs.renameSync('public/live.tmp.mp4','public/live.mp4');
+
+          if (fs.existsSync('public/live.mp4')) {
+            var concat = new ffmpeg();
+
+            concat
+              .addInput('concat:public/live.mp4|public/live.tmp.mp4')
+              .addOptions(['-codec copy'])
+              .on('error', function(err) {
+                console.log('an error happened: ' + err.message);
+              })
+              .on('end', function() {
+                console.log('FFMPEG concat ok !');
+              })
+              .saveToFile('public/live.concat.mp4');
+              fs.unlinkSync('public/live.tmp.mp4');
+              fs.renameSync('public/live.concat.mp4', 'public/live.mp4');
+          } else {  
+            fs.renameSync('public/live.tmp.mp4', 'public/live.mp4');
+          }
         })
-        .on('error', function(err) { console.log('an error happened: ' + err.message);})
+        .on('error', function(err) {
+           console.log('an error happened: ' + err.message);
+          })
         .saveToFile('public/live.tmp.mp4');
 
   };
